@@ -21,9 +21,14 @@ identifier {letter}({letter}|{digit}|_)*
 ")"                     { return ')'; }
 ";"                     { return ';'; }
 
-{digit}+\.{digit}+      { yylval.sval = strdup(yytext); return FLOATINGNUMBER; }
-{digit}+                { yylval.sval = strdup(yytext); return NUMBER; }
-{identifier}            { yylval.sval = strdup(yytext); return IDENTIFIER; }
+{digit}+\.{digit}+      { yylval.fval = atof(yytext); return FLOATINGNUMBER; }
+{digit}+                { yylval.ival = atoi(yytext); return NUMBER; }
+{identifier}            {
+    struct IdentifierData *idData = malloc(sizeof(idData));
+    idData->name = strdup(yytext);
+    yylval.idData = idData;
+    return IDENTIFIER;
+}
 
 "\n"                    { line += 1; }
 [ \t]+                  { /* skip whitespace */ }

@@ -5,26 +5,35 @@
 extern int yylex(void);
 void yyerror(const char *s);
 extern int line;
+
+IdentifierData *idDataList[1000];
 %}
 
 %union {
     int ival;
     float fval;
-    char *sval;
+    char* sval;
+    struct IdentifierData {
+        char *name;
+        int hash;
+
+        // 0: int, 1: float
+        int type;
+        int iValue;
+        float fValue;
+        IdentifierData *nxt;
+    } *idData;
 }
 
 %token <sval> INT FLOAT
 %token MAIN ASSIGN
-%token <sval> IDENTIFIER
-%token <sval> NUMBER
-%token <sval> FLOATINGNUMBER
-
-%type <sval> expr
-%type <sval> type
+%token <idData> IDENTIFIER
+%token <ival> NUMBER
+%token <fval> FLOATINGNUMBER
 %%
 
 program:
-    INT MAIN '(' ')' '{' statements '}'        { printf("Valid program\n"); }
+    INT MAIN '(' ')' '{' statements '}'
     ;
 
 statements:
@@ -38,22 +47,22 @@ statement:
     ;
 
 declaration:
-    type IDENTIFIER ASSIGN expr ';' { printf("Declare %s %s = %s\n", $1, $2, $4); }
+    type IDENTIFIER ASSIGN expr ';'
     ;
 
 assignment:
-    IDENTIFIER ASSIGN expr ';' { printf("Assign %s = %s\n", $1, $3); }
+    IDENTIFIER ASSIGN expr ';'
     ;
 
 type:
-    INT     { $$ = "int"; }
-    | FLOAT  { $$ = "float"; }
+    INT
+    | FLOAT
     ;
 
 expr:
-    NUMBER { $$ = $1; }
-    | FLOATINGNUMBER { $$ = $1; }
-    | IDENTIFIER { $$ = $1; }
+    NUMBER
+    | FLOATINGNUMBER
+    | IDENTIFIER
     ;
 ;
 
