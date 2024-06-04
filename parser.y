@@ -13,13 +13,49 @@ extern int line;
     char *sval;
 }
 
-%token INT MAIN NUMBER IDENTIFIER
+%token <sval> INT FLOAT
+%token MAIN ASSIGN
+%token <sval> IDENTIFIER
+%token <sval> NUMBER
+%token <sval> FLOATINGNUMBER
 
+%type <sval> expr
+%type <sval> type
 %%
 
 program:
-    INT MAIN '(' ')' '{' '}'        { printf("Valid program\n"); }
+    INT MAIN '(' ')' '{' statements '}'        { printf("Valid program\n"); }
     ;
+
+statements:
+    statements statement
+    |
+    ;
+
+statement:
+    assignment
+    | declaration
+    ;
+
+declaration:
+    type IDENTIFIER ASSIGN expr ';' { printf("Declare %s %s = %s\n", $1, $2, $4); }
+    ;
+
+assignment:
+    IDENTIFIER ASSIGN expr ';' { printf("Assign %s = %s\n", $1, $3); }
+    ;
+
+type:
+    INT     { $$ = "int"; }
+    | FLOAT  { $$ = "float"; }
+    ;
+
+expr:
+    NUMBER { $$ = $1; }
+    | FLOATINGNUMBER { $$ = $1; }
+    | IDENTIFIER { $$ = $1; }
+    ;
+;
 
 %%
 
