@@ -7,8 +7,9 @@ EXECUTABLE="a.out"
 
 test_files=(
     "main_function.txt"
+    "declaration_assignment.txt"
 )
 
 for file in "${test_files[@]}"; do
-    ./${EXECUTABLE} < ./test/${file}
+    ./${EXECUTABLE} < ./test/${file} > ./test_result/${file}
 done
