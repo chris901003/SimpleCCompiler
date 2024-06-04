@@ -33,8 +33,8 @@ statements:
     ;
 
 statement:
-    assignment
-    | declaration
+    declaration
+    | assignment
     ;
 
 declaration:
