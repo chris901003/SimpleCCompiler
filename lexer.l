@@ -1,17 +1,36 @@
 %{
 #include "parser.tab.h"
+
+int line = 1;
 %}
 
-%%
-
-[0-9]+      { yylval.intval = atoi(yytext); return NUMBER; }
-"+"         { return PLUS; }
-"\n"        { return END; }
-[ \t]+      { /* ©¿²¤ªÅ¥Õ¦r²Å */ }
-.           { return yytext[0]; }
+digit   [0-9]
+letter  [a-zA-Z]
+identifier {letter}({letter}|{digit}|_)*
 
 %%
 
-int yywrap() {
+"int"                   { return INT; }
+"main"                  { return MAIN; }
+
+
+"{"                     { return '{'; }
+"}"                     { return '}'; }
+"("                     { return '('; }
+")"                     { return ')'; }
+";"                     { return ';'; }
+
+
+{digit}+                { return NUMBER; }
+{identifier}            { yylval.sval = strdup(yytext); return IDENTIFIER; }
+
+
+"\n"                    { line += 1; }
+[ \t]+                  { /* skip whitespace */ }
+.                       { /* skip any other character */ }
+
+%%
+int yywrap(void) {
     return 1;
 }
+

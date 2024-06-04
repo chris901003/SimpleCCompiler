@@ -2,28 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern int yylex(void);
 void yyerror(const char *s);
-int yylex();
+extern int line;
 %}
 
 %union {
-    int intval;
+    int ival;
+    float fval;
+    char *sval;
 }
 
-%token <intval> NUMBER
-%token PLUS END
-
-%type <intval> expr
+%token INT MAIN NUMBER IDENTIFIER
 
 %%
 
-input:
-    expr END { printf("Result: %d\n", $1); }
-    ;
-
-expr:
-    expr PLUS expr { $$ = $1 + $3; }
-    | NUMBER       { $$ = $1; }
+program:
+    INT MAIN '(' ')' '{' '}'        { printf("Valid program\n"); }
     ;
 
 %%
@@ -32,7 +27,8 @@ void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
 
-int main() {
-    printf("Enter expressions to add (e.g., 2 + 3):\n");
-    return yyparse();
+int main(void) {
+    int result = yyparse();
+    printf("Total lines: %d\n", line);
+    return result;
 }
