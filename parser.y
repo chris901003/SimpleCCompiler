@@ -32,6 +32,7 @@ Program:
 
 Block:
     '{' Statements '}'
+    | Statement
     ;
 
 Statements:
@@ -42,6 +43,7 @@ Statements:
 Statement:
     DeclarationStatement
     | AssignmentStatement
+    | IfStatement
     ;
 
 DeclarationStatement:
@@ -69,6 +71,20 @@ AssignmentExpression:
 
 AssignmentStatement:
     AssignmentExpression ';'
+    ;
+
+IfStatement:
+    IF '(' ConditionExpression ')' Block
+    | IF '(' ConditionExpression ')' Block ELSE Block
+    ;
+
+ConditionExpression:
+    expression EQ expression
+    | expression GE expression
+    | expression LE expression
+    | expression NE expression
+    | expression '>' expression
+    | expression '<' expression
     ;
 
 expression:
