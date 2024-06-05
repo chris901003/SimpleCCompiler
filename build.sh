@@ -32,6 +32,7 @@ fi
 # 編譯生成的 C 源文件
 files=(
     "./data_struct/identifier_data.c"
+    "./data_struct/data_type.c"
 )
 files_string=$(printf " %s" "${files[@]}")
 

@@ -23,6 +23,11 @@ identifier {letter}({letter}|{digit}|_)*
 "("                     { return '('; }
 ")"                     { return ')'; }
 ";"                     { return ';'; }
+"+"                     { return '+'; }
+"-"                     { return '-'; }
+"*"                     { return '*'; }
+"/"                     { return '/'; }
+"%"                     { return '%'; }
 
 {digit}+\.{digit}+      { yylval.fval = atof(yytext); return FLOATINGNUMBER; }
 {digit}+                { yylval.ival = atoi(yytext); return NUMBER; }

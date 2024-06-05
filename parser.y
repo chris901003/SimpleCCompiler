@@ -27,7 +27,7 @@ extern void init();
 %token <fval> FLOATINGNUMBER
 
 %type <sval> type;
-%type <dataType> expr; 
+%type <dataType> expression term factor expr; 
 %%
 
 program:
@@ -46,7 +46,7 @@ statement:
     ;
 
 declaration:
-    type IDENTIFIER ASSIGN expr ';' {
+    type IDENTIFIER ASSIGN expression ';' {
         struct IdentifierData *idData = findIdentifer(idDataList, $2->name);
         if (strcmp($1, "int") == 0) {
             idData->type = 0;
@@ -59,7 +59,7 @@ declaration:
     ;
 
 assignment:
-    IDENTIFIER ASSIGN expr ';' {
+    IDENTIFIER ASSIGN expression ';' {
         struct IdentifierData *idData = findIdentifer(idDataList, $1->name);
         if ($3->type == 0) {
             idData->iValue = $3->ival;
@@ -93,6 +93,33 @@ type:
     | FLOAT { $$ = "float"; }
     ;
 
+expression:
+    term
+    | expression '+' term {
+        $$ = calDataType(idDataList, $1, $3, plus);
+    }
+    | expression '-' term {
+        $$ = calDataType(idDataList, $1, $3, minus);
+    }
+    ;
+
+term:
+    factor
+    | term '*' factor {
+        $$ = calDataType(idDataList, $1, $3, multi);
+    }
+    | term '/' factor {
+        $$ = calDataType(idDataList, $1, $3, division);
+    }
+    | term '%' factor {
+        $$ = calDataType(idDataList, $1, $3, mod);
+    }
+    ;
+
+factor:
+    expr
+    ;
+
 expr:
     NUMBER {
         struct DataType *dataType = malloc(sizeof(struct DataType));
@@ -111,6 +138,9 @@ expr:
         dataType->type = 2;
         dataType->idName = $1->name;
         $$ = dataType;
+    }
+    | '(' expression ')' {
+        $$ = $2;
     }
     ;
 ;
