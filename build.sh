@@ -30,7 +30,12 @@ if [[ ! -f $LEXER_OUTPUT ]] || [[ ! -f $PARSER_OUTPUT ]] || [[ ! -f $PARSER_HEAD
 fi
 
 # 編譯生成的 C 源文件
-gcc -o $EXECUTABLE $PARSER_OUTPUT $LEXER_OUTPUT
+files=(
+    "./data_struct/identifier_data.c"
+)
+files_string=$(printf " %s" "${files[@]}")
+
+gcc -o $EXECUTABLE $PARSER_OUTPUT $LEXER_OUTPUT $files_string
 
 # 檢查是否成功生成可執行文件
 if [[ ! -f $EXECUTABLE ]]; then
