@@ -35,6 +35,22 @@ Block:
     | Statement
     ;
 
+ForBlock:
+    '{' ForBlockStatements '}'
+    | ForBlockStatement
+    ;
+
+ForBlockStatements:
+    /* empty */
+    | ForBlockStatements ForBlockStatement
+    ;
+
+ForBlockStatement:
+    Statement
+    | CONTINUE ';'
+    | BREAK ';'
+    ;
+
 Statements:
         /* empty */
     |Statements Statement
@@ -45,10 +61,15 @@ Statement:
     | AssignmentStatement
     | IfStatement
     | WhileStatement
+    | ForStatement
+    ;
+
+DeclarationExpression:
+    VariableType DeclarationVariableList
     ;
 
 DeclarationStatement:
-    VariableType DeclarationVariableList ';'
+    DeclarationExpression ';'
     ;
 
 VariableType:
@@ -74,6 +95,11 @@ AssignmentStatement:
     AssignmentExpression ';'
     ;
 
+ForInitExpression:
+    AssignmentExpression
+    | DeclarationExpression
+    ;
+
 IfStatement:
     IF '(' ConditionExpression ')' Block
     | IF '(' ConditionExpression ')' Block ELSE Block
@@ -81,6 +107,10 @@ IfStatement:
 
 WhileStatement:
     WHILE '(' ConditionExpression ')' Block
+    ;
+
+ForStatement:
+    FOR '(' ForInitExpression ';' ConditionExpression ';' AssignmentExpression ')' ForBlock
     ;
 
 ConditionExpression:
