@@ -1,0 +1,6 @@
+int main() {
+    int a = 10, b;
+    while (10 < 20) {
+        int a = 20;
+    }
+}

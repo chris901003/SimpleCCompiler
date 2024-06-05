@@ -20,6 +20,7 @@ extern int line;
 %token IDENTIFIER
 %token NUMBER
 %token FLOATINGNUMBER
+%token WHILE
 
 %%
 
@@ -37,6 +38,7 @@ statement:
     | assignment
     | compoundStatement
     | ifStatement
+    | whileStatement
     ;
 
 compoundStatement:
@@ -93,6 +95,10 @@ expr:
 ifStatement:
     IF '(' condition ')' statement ELSE statement
     | IF '(' condition ')' statement
+    ;
+
+whileStatement:
+    WHILE '(' condition ')' statement
     ;
 
 condition:

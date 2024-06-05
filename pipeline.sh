@@ -11,6 +11,7 @@ test_files=(
     "variable_usable.txt"
     "cal.txt"
     "if_else_statement.txt"
+    "while_statement.txt"
 )
 
 for file in "${test_files[@]}"; do

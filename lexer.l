@@ -17,6 +17,7 @@ identifier {letter}({letter}|{digit}|_)*
 "float"                 { return FLOAT; }
 "if"                    { return IF; }
 "else"                  { return ELSE; }
+"while"                 { return WHILE; }
 
 "="                     { return ASSIGN; }
 "{"                     { return '{'; }
