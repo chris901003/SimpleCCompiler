@@ -1,8 +1,0 @@
-int main() {
-    int c = 30;
-    if (10 < 20) {
-        int a = 10;
-    } else if (20 < 30) {
-        int b = 20;
-    } else c = 30;
-}

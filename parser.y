@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#define YYERROR_VERBOSE 1
 
 extern int yylex(void);
 void yyerror(const char *s);
@@ -20,52 +21,54 @@ extern int line;
 %token IDENTIFIER
 %token NUMBER
 %token FLOATINGNUMBER
-%token WHILE
+%token WHILE FOR
+%token BREAK CONTINUE
 
 %%
 
-program:
-    INT MAIN '(' ')' '{' statements '}'
+Program:
+    INT MAIN '(' ')' Block
     ;
 
-statements:
+Block:
+    '{' Statements '}'
+    ;
+
+Statements:
         /* empty */
-    |statements statement
+    |Statements Statement
     ;
 
-statement:
-    declarationList
-    | assignment
-    | compoundStatement
-    | ifStatement
-    | whileStatement
+Statement:
+    DeclarationStatement
+    | AssignmentStatement
     ;
 
-compoundStatement:
-    '{' statements '}'
+DeclarationStatement:
+    VariableType DeclarationVariableList ';'
     ;
 
-declarationList:
-    type initDeclaratorList ';'
+VariableType:
+    INT
+    | FLOAT
     ;
 
-initDeclaratorList:
-    initDeclarator
-    | initDeclaratorList ',' initDeclarator
+DeclarationVariableList:
+    DeclarationVariable
+    | DeclarationVariableList ',' DeclarationVariable
     ;
 
-initDeclarator:
+DeclarationVariable:
     IDENTIFIER
     | IDENTIFIER ASSIGN expression
     ;
 
-assignment:
-    IDENTIFIER ASSIGN expression ';'
+AssignmentExpression:
+    IDENTIFIER ASSIGN expression
     ;
 
-type:
-    INT
-    | FLOAT
+AssignmentStatement:
+    AssignmentExpression ';'
     ;
 
 expression:
@@ -82,32 +85,10 @@ term:
     ;
 
 factor:
-    expr
-    ;
-
-expr:
     NUMBER
     | FLOATINGNUMBER
     | IDENTIFIER
     | '(' expression ')'
-    ;
-
-ifStatement:
-    IF '(' condition ')' statement ELSE statement
-    | IF '(' condition ')' statement
-    ;
-
-whileStatement:
-    WHILE '(' condition ')' statement
-    ;
-
-condition:
-    expression EQ expression
-    | expression GE expression
-    | expression LE expression
-    | expression NE expression
-    | expression '<' expression
-    | expression '>' expression
     ;
 
 %%

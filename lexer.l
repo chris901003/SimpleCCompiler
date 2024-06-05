@@ -18,6 +18,9 @@ identifier {letter}({letter}|{digit}|_)*
 "if"                    { return IF; }
 "else"                  { return ELSE; }
 "while"                 { return WHILE; }
+"for"                   { return FOR; }
+"continue"              { return CONTINUE; }
+"break"                 { return BREAK; }
 
 "="                     { return ASSIGN; }
 "{"                     { return '{'; }
