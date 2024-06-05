@@ -4,3 +4,4 @@ a.out
 parser.tab.c
 parser.tab.h
 test_result
+parser.output

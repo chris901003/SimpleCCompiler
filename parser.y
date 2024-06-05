@@ -28,8 +28,8 @@ program:
     ;
 
 statements:
-    statements statement
-    |
+        /* empty */
+    |statements statement
     ;
 
 statement:
@@ -44,21 +44,19 @@ compoundStatement:
     ;
 
 declarationList:
-    declaration
-    | declarationList declaration
+    type initDeclaratorList ';'
     ;
 
-declaration:
-    type init_declarator_list ';'
+initDeclaratorList:
+    initDeclarator
+    | initDeclaratorList ',' initDeclarator
     ;
 
-init_declarator_list:
-    init_declarator
-    ;
-
-init_declarator:
+initDeclarator:
     IDENTIFIER
-    | IDENTIFIER ASSIGN expression
+    | IDENTIFIER ASSIGN expression {
+        printf("Assign\n");
+    }
     ;
 
 assignment:

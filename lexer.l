@@ -33,6 +33,7 @@ identifier {letter}({letter}|{digit}|_)*
 "<="                    { return LE; }
 "!="                    { return NE; }
 "%"                     { return '%'; }
+","                     { return ','; }
 
 {digit}+\.{digit}+      { yylval.fval = atof(yytext); return FLOATINGNUMBER; }
 {digit}+                { yylval.ival = atoi(yytext); return NUMBER; }
@@ -43,7 +44,7 @@ identifier {letter}({letter}|{digit}|_)*
 
 "\n"                    { line += 1; }
 [ \t]+                  { /* skip whitespace */ }
-.                       { printf("Unkown token"); }
+.                       { printf("Unkown token\n"); }
 
 %%
 int yywrap(void) {
