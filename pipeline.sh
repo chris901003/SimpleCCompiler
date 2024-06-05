@@ -7,6 +7,7 @@ EXECUTABLE="a.out"
 
 test_files=(
     "variable_declaration_assignment.txt"
+    "if_statement.txt"
 )
 
 for file in "${test_files[@]}"; do

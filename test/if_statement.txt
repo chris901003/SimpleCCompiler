@@ -1,0 +1,23 @@
+int main() {
+    if (a == b) {
+        c = a + b;
+    }
+    else if (a > b) {
+        c = a - b;
+    }
+    else {
+        c = a * b;
+    }
+
+    if (a < b) {
+        c = a + 3;
+    }
+    else {
+        c = a - b;
+    }
+
+    if (a < b)
+        c = a + 3;
+    else
+        c = a + 5;
+}
