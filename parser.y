@@ -41,11 +41,35 @@ GlobalStatement:
     ;
 
 FunctionDeclaration:
-    VariableType IDENTIFIER '(' ')' ';'
+    VariableType IDENTIFIER '(' FunctionParametersWithoutName ')' ';'
+    | VariableType IDENTIFIER '(' FunctionParameterEmpty ')' ';'
     ;
 
 FunctionDefinition:
-    VariableType IDENTIFIER '(' ')' FunctionBlock
+    VariableType IDENTIFIER '(' FunctionParametersWithName ')' FunctionBlock
+    | VariableType IDENTIFIER '(' FunctionParameterEmpty ')' FunctionBlock
+    ;
+
+FunctionParameterEmpty:
+    /* empty */
+    ;
+
+FunctionParametersWithName:
+    FunctionParameterWithName
+    | FunctionParametersWithName ',' FunctionParameterWithName
+    ;
+
+FunctionParameterWithName:
+    VariableType IDENTIFIER
+    ;
+
+FunctionParametersWithoutName:
+    FunctionParameterWithoutName
+    | FunctionParametersWithoutName ',' FunctionParameterWithoutName
+    ;
+
+FunctionParameterWithoutName:
+    VariableType
     ;
 
 Block:

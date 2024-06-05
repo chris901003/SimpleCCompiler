@@ -11,6 +11,7 @@ test_files=(
     "while_statement.txt"
     "for_statement.txt"
     "function_declaration.txt"
+    "function_declaration_with_parameters.txt"
 )
 
 for file in "${test_files[@]}"; do
