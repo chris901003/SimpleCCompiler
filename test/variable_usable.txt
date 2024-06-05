@@ -2,13 +2,9 @@ int main() {
     int a = 10;
     int b = 3;
     b = 5;
-    print(b);
     b = a;
-    print(b);
     float c = 10.5;
     c = 12.5;
-    print(c);
     float d = 0.5;
     c = d;
-    print(c);
 }

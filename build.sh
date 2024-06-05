@@ -30,10 +30,7 @@ if [[ ! -f $LEXER_OUTPUT ]] || [[ ! -f $PARSER_OUTPUT ]] || [[ ! -f $PARSER_HEAD
 fi
 
 # 編譯生成的 C 源文件
-files=(
-    "./data_struct/identifier_data.c"
-    "./data_struct/data_type.c"
-)
+files=()
 files_string=$(printf " %s" "${files[@]}")
 
 gcc -o $EXECUTABLE $PARSER_OUTPUT $LEXER_OUTPUT $files_string

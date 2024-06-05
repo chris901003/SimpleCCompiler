@@ -1,1 +1,0 @@
-#define MAX_IDENTIFIER_SIZE 1000

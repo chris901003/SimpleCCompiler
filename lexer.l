@@ -1,9 +1,7 @@
 %{
 #include "parser.tab.h"
-#include "./data_struct/identifier_data.h"
 
 int line = 1;
-struct IdentifierData **idDataList;
 %}
 
 digit [0-9]
@@ -15,7 +13,6 @@ identifier {letter}({letter}|{digit}|_)*
 "main"                  { return MAIN; }
 "int"                   { return INT; }
 "float"                 { return FLOAT; }
-"print"                 { return PRINT; }
 "if"                    { return IF; }
 "else"                  { return ELSE; }
 
@@ -40,14 +37,7 @@ identifier {letter}({letter}|{digit}|_)*
 {digit}+\.{digit}+      { yylval.fval = atof(yytext); return FLOATINGNUMBER; }
 {digit}+                { yylval.ival = atoi(yytext); return NUMBER; }
 {identifier}            {
-    char *name = strdup(yytext);
-    struct IdentifierData *idData = findIdentifer(idDataList, name);
-    if (idData == NULL) {
-        idData = malloc(sizeof(struct IdentifierData));
-        idData->name = strdup(yytext);
-        saveIdentifier(idDataList, idData);
-    }
-    yylval.idData = idData;
+    yylval.sval = strdup(yytext);
     return IDENTIFIER;
 }
 
@@ -58,9 +48,5 @@ identifier {letter}({letter}|{digit}|_)*
 %%
 int yywrap(void) {
     return 1;
-}
-
-void init() {
-    idDataList = initIdentifierList();
 }
 

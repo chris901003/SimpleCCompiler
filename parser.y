@@ -1,35 +1,25 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "./data_struct/identifier_data.h"
-#include "./data_struct/data_type.h"
 
 extern int yylex(void);
 void yyerror(const char *s);
 extern int line;
-extern struct IdentifierData **idDataList;
-extern void init();
 %}
 
 %union {
     int ival;
     float fval;
     char* sval;
-    struct IdentifierData *idData;
-    struct DataType *dataType;
 }
 
-%token <sval> INT FLOAT
-%token MAIN ASSIGN PRINT
+%token INT FLOAT
+%token MAIN ASSIGN
 %token EQ GE LE NE
 %token IF ELSE
-%token <idData> IDENTIFIER
-%token <ival> NUMBER
-%token <fval> FLOATINGNUMBER
-
-%type <sval> type;
-%type <dataType> expression term factor expr;
+%token IDENTIFIER
+%token NUMBER
+%token FLOATINGNUMBER
 
 %%
 
@@ -43,10 +33,9 @@ statements:
     ;
 
 statement:
-    declaration
+    declarationList
     | assignment
     | compoundStatement
-    | printStatement
     | ifStatement
     ;
 
@@ -54,75 +43,44 @@ compoundStatement:
     '{' statements '}'
     ;
 
+declarationList:
+    declaration
+    | declarationList declaration
+    ;
+
 declaration:
-    type IDENTIFIER ASSIGN expression ';' {
-        struct IdentifierData *idData = findIdentifer(idDataList, $2->name);
-        if (strcmp($1, "int") == 0) {
-            idData->type = 0;
-            idData->iValue = $4->ival;
-        } else if (strcmp($1, "float") == 0) {
-            idData->type = 1;
-            idData->fValue = $4->fval;
-        }
-    }
+    type init_declarator_list ';'
+    ;
+
+init_declarator_list:
+    init_declarator
+    ;
+
+init_declarator:
+    IDENTIFIER
+    | IDENTIFIER ASSIGN expression
     ;
 
 assignment:
-    IDENTIFIER ASSIGN expression ';' {
-        struct IdentifierData *idData = findIdentifer(idDataList, $1->name);
-        if ($3->type == 0) {
-            idData->iValue = $3->ival;
-        } else if ($3->type == 1) {
-            idData->fValue = $3->fval;
-        } else if ($3->type == 2) {
-            struct IdentifierData *target = findIdentifer(idDataList, $3->idName);
-            if (target == NULL) {
-                printf("Identifier: %s not declare.\n", $3->idName);
-            } else {
-                idData->iValue = target->iValue;
-                idData->fValue = target->fValue;
-            }
-        }
-    }
-    ;
-
-printStatement:
-    PRINT '(' IDENTIFIER ')' ';' {
-        struct IdentifierData *idData = findIdentifer(idDataList, $3->name);
-        if (idData == NULL) {
-            printf("Identifier: %s not found.\n", $3->name);
-        } else {
-            printf("Identifier: %s.\nInt val: %d.\nFloat val: %f\n", idData->name, idData->iValue, idData->fValue);
-        }
-    }
+    IDENTIFIER ASSIGN expression ';'
     ;
 
 type:
-    INT { $$ = "int"; }
-    | FLOAT { $$ = "float"; }
+    INT
+    | FLOAT
     ;
 
 expression:
     term
-    | expression '+' term {
-        $$ = calDataType(idDataList, $1, $3, plus);
-    }
-    | expression '-' term {
-        $$ = calDataType(idDataList, $1, $3, minus);
-    }
+    | expression '+' term
+    | expression '-' term
     ;
 
 term:
     factor
-    | term '*' factor {
-        $$ = calDataType(idDataList, $1, $3, multi);
-    }
-    | term '/' factor {
-        $$ = calDataType(idDataList, $1, $3, division);
-    }
-    | term '%' factor {
-        $$ = calDataType(idDataList, $1, $3, mod);
-    }
+    | term '*' factor
+    | term '/' factor
+    | term '%' factor
     ;
 
 factor:
@@ -130,27 +88,10 @@ factor:
     ;
 
 expr:
-    NUMBER {
-        struct DataType *dataType = malloc(sizeof(struct DataType));
-        dataType->type = 0;
-        dataType->ival = $1;
-        $$ = dataType;
-    }
-    | FLOATINGNUMBER {
-        struct DataType *dataType = malloc(sizeof(struct DataType));
-        dataType->type = 1;
-        dataType->fval = $1;
-        $$ = dataType;
-    }
-    | IDENTIFIER { 
-        struct DataType *dataType = malloc(sizeof(struct DataType));
-        dataType->type = 2;
-        dataType->idName = $1->name;
-        $$ = dataType;
-    }
-    | '(' expression ')' {
-        $$ = $2;
-    }
+    NUMBER
+    | FLOATINGNUMBER
+    | IDENTIFIER
+    | '(' expression ')'
     ;
 
 ifStatement:
@@ -174,7 +115,6 @@ void yyerror(const char *s) {
 }
 
 int main(void) {
-    init();
     int result = yyparse();
     printf("Total lines: %d\n", line);
     return result;
