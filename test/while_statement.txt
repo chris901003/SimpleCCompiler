@@ -1,0 +1,5 @@
+int main() {
+    while (c > 0) {
+        c = c - 1;
+    }
+}

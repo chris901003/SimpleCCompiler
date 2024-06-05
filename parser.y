@@ -44,6 +44,7 @@ Statement:
     DeclarationStatement
     | AssignmentStatement
     | IfStatement
+    | WhileStatement
     ;
 
 DeclarationStatement:
@@ -76,6 +77,10 @@ AssignmentStatement:
 IfStatement:
     IF '(' ConditionExpression ')' Block
     | IF '(' ConditionExpression ')' Block ELSE Block
+    ;
+
+WhileStatement:
+    WHILE '(' ConditionExpression ')' Block
     ;
 
 ConditionExpression:
