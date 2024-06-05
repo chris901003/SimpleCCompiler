@@ -16,6 +16,8 @@ identifier {letter}({letter}|{digit}|_)*
 "int"                   { return INT; }
 "float"                 { return FLOAT; }
 "print"                 { return PRINT; }
+"if"                    { return IF; }
+"else"                  { return ELSE; }
 
 "="                     { return ASSIGN; }
 "{"                     { return '{'; }
@@ -27,6 +29,12 @@ identifier {letter}({letter}|{digit}|_)*
 "-"                     { return '-'; }
 "*"                     { return '*'; }
 "/"                     { return '/'; }
+"<"                     { return '<'; }
+">"                     { return '>'; }
+"=="                    { return EQ; }
+">="                    { return GE; }
+"<="                    { return LE; }
+"!="                    { return NE; }
 "%"                     { return '%'; }
 
 {digit}+\.{digit}+      { yylval.fval = atof(yytext); return FLOATINGNUMBER; }
@@ -45,7 +53,7 @@ identifier {letter}({letter}|{digit}|_)*
 
 "\n"                    { line += 1; }
 [ \t]+                  { /* skip whitespace */ }
-.                       { /* skip any other character */ }
+.                       { printf("Unkown token"); }
 
 %%
 int yywrap(void) {

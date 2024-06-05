@@ -22,12 +22,15 @@ extern void init();
 
 %token <sval> INT FLOAT
 %token MAIN ASSIGN PRINT
+%token EQ GE LE NE
+%token IF ELSE
 %token <idData> IDENTIFIER
 %token <ival> NUMBER
 %token <fval> FLOATINGNUMBER
 
 %type <sval> type;
-%type <dataType> expression term factor expr; 
+%type <dataType> expression term factor expr;
+
 %%
 
 program:
@@ -42,7 +45,13 @@ statements:
 statement:
     declaration
     | assignment
+    | compoundStatement
     | printStatement
+    | ifStatement
+    ;
+
+compoundStatement:
+    '{' statements '}'
     ;
 
 declaration:
@@ -143,7 +152,20 @@ expr:
         $$ = $2;
     }
     ;
-;
+
+ifStatement:
+    IF '(' condition ')' statement ELSE statement
+    | IF '(' condition ')' statement
+    ;
+
+condition:
+    expression EQ expression
+    | expression GE expression
+    | expression LE expression
+    | expression NE expression
+    | expression '<' expression
+    | expression '>' expression
+    ;
 
 %%
 

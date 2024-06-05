@@ -10,6 +10,7 @@ test_files=(
     "declaration_assignment.txt"
     "variable_usable.txt"
     "cal.txt"
+    "if_else_statement.txt"
 )
 
 for file in "${test_files[@]}"; do
