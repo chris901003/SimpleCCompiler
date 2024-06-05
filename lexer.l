@@ -12,7 +12,7 @@ identifier {letter}({letter}|{digit}|_)*
 "//".*               { /* Skip single-line comment */ }
 "/*"([^*]|\*+[^*/])*\*+"/"    { /* Skip multi-line comment */ }
 
-"main"                  { return MAIN; }
+"void"                  { return VOID; }
 "int"                   { return INT; }
 "float"                 { return FLOAT; }
 "if"                    { return IF; }
@@ -21,6 +21,7 @@ identifier {letter}({letter}|{digit}|_)*
 "for"                   { return FOR; }
 "continue"              { return CONTINUE; }
 "break"                 { return BREAK; }
+"return"                { return RETURN; }
 
 "="                     { return ASSIGN; }
 "{"                     { return '{'; }

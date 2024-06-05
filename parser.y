@@ -14,20 +14,38 @@ extern int line;
     char* sval;
 }
 
-%token INT FLOAT
-%token MAIN ASSIGN
+%token VOID INT FLOAT
+%token ASSIGN
 %token EQ GE LE NE
 %token IF ELSE
 %token IDENTIFIER
 %token NUMBER
 %token FLOATINGNUMBER
 %token WHILE FOR
-%token BREAK CONTINUE
+%token BREAK CONTINUE RETURN
+
+%start GlobalStatements
 
 %%
 
-Program:
-    INT MAIN '(' ')' Block
+GlobalStatements:
+    /* empty */
+    | GlobalStatements GlobalStatement
+    ;
+
+GlobalStatement:
+    FunctionDeclaration
+    | FunctionDefinition
+    | DeclarationStatement
+    | AssignmentStatement
+    ;
+
+FunctionDeclaration:
+    VariableType IDENTIFIER '(' ')' ';'
+    ;
+
+FunctionDefinition:
+    VariableType IDENTIFIER '(' ')' FunctionBlock
     ;
 
 Block:
@@ -49,6 +67,21 @@ ForBlockStatement:
     Statement
     | CONTINUE ';'
     | BREAK ';'
+    ;
+
+FunctionBlock:
+    '{' FunctionBlockStatements '}'
+    ;
+
+FunctionBlockStatements:
+    /* empty */
+    | FunctionBlockStatements FunctionBlockStatement
+    ;
+
+FunctionBlockStatement:
+    Statement
+    | RETURN ';'
+    | RETURN expression ';'
     ;
 
 Statements:
@@ -73,7 +106,8 @@ DeclarationStatement:
     ;
 
 VariableType:
-    INT
+    VOID
+    | INT
     | FLOAT
     ;
 

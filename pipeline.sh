@@ -10,6 +10,7 @@ test_files=(
     "if_statement.txt"
     "while_statement.txt"
     "for_statement.txt"
+    "function_declaration.txt"
 )
 
 for file in "${test_files[@]}"; do
