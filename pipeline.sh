@@ -8,6 +8,7 @@ EXECUTABLE="a.out"
 test_files=(
     "main_function.txt"
     "declaration_assignment.txt"
+    "variable_usable.txt"
 )
 
 for file in "${test_files[@]}"; do
