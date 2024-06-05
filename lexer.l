@@ -9,6 +9,8 @@ letter [a-zA-Z]
 identifier {letter}({letter}|{digit}|_)*
 
 %%
+"//".*               { /* Skip single-line comment */ }
+"/*"([^*]|\*+[^*/])*\*+"/"    { /* Skip multi-line comment */ }
 
 "main"                  { return MAIN; }
 "int"                   { return INT; }

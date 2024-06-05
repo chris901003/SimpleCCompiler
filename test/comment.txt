@@ -1,0 +1,7 @@
+int main() {
+    int a = 10, b;
+    // single-line comment
+    /*
+    multiline comment
+    */
+}

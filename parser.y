@@ -54,9 +54,7 @@ initDeclaratorList:
 
 initDeclarator:
     IDENTIFIER
-    | IDENTIFIER ASSIGN expression {
-        printf("Assign\n");
-    }
+    | IDENTIFIER ASSIGN expression
     ;
 
 assignment:
