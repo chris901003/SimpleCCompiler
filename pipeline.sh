@@ -12,6 +12,8 @@ test_files=(
     "for_statement.txt"
     "function_declaration.txt"
     "function_declaration_with_parameters.txt"
+    "call_function.txt"
+    "include_header.txt"
 )
 
 for file in "${test_files[@]}"; do

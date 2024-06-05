@@ -48,10 +48,18 @@ identifier {letter}({letter}|{digit}|_)*
     yylval.sval = strdup(yytext);
     return IDENTIFIER;
 }
+"#include"[\t ]*"<"[a-zA-Z0-9_/\.]+">" {
+    yylval.sval = strdup(yytext);
+    return HEADERFILE;
+}
+"#include"[\t ]*"\""[a-zA-Z0-9_/\.]+"\"" {
+    yylval.sval = strdup(yytext);
+    return HEADERFILE;
+}
 
 "\n"                    { line += 1; }
 [ \t]+                  { /* skip whitespace */ }
-.                       { printf("Unkown token\n"); }
+.                       { printf("Unkown token: %s\n", yytext); }
 
 %%
 int yywrap(void) {

@@ -14,6 +14,7 @@ extern int line;
     char* sval;
 }
 
+%token HEADERFILE
 %token VOID INT FLOAT
 %token ASSIGN
 %token EQ GE LE NE
@@ -34,10 +35,15 @@ GlobalStatements:
     ;
 
 GlobalStatement:
-    FunctionDeclaration
+    IncludeExpression
+    | FunctionDeclaration
     | FunctionDefinition
     | DeclarationStatement
     | AssignmentStatement
+    ;
+
+IncludeExpression:
+    HEADERFILE
     ;
 
 FunctionDeclaration:
