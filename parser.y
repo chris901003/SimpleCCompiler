@@ -119,6 +119,7 @@ Statement:
     | IfStatement
     | WhileStatement
     | ForStatement
+    | CallFunctionStatement
     ;
 
 DeclarationExpression:
@@ -151,6 +152,16 @@ AssignmentExpression:
 
 AssignmentStatement:
     AssignmentExpression ';'
+    ;
+
+CallFunctionStatement:
+    IDENTIFIER '(' CallFunctionParameters ')' ';'
+    ;
+
+CallFunctionParameters:
+    /* empty */
+    | expression
+    | CallFunctionParameters ',' expression
     ;
 
 ForInitExpression:
