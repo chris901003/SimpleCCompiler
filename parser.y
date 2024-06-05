@@ -5,7 +5,8 @@
 
 extern int yylex(void);
 void yyerror(const char *s);
-extern int line;
+extern int lines;
+extern int row;
 %}
 
 %union {
@@ -225,6 +226,10 @@ void yyerror(const char *s) {
 
 int main(void) {
     int result = yyparse();
-    printf("Total lines: %d\n", line);
+    if (result == 1) {
+        printf("Syntax error at line %d, row %d\n", lines, row);
+    } else {
+        printf("Total lines: %d\n", lines);
+    }
     return result;
 }
