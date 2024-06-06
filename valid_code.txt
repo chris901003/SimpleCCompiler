@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include "./tmp.h"
+
+void testFunction(int, int);
+void emptyFunction();
+
+int main() {
+    int a = 20, b = 30, c;
+    float d = 1.5, e, f;
+
+    if (a < b) {
+        a = 30;
+    } else if (a < c) {
+        a = 40;
+    }
+
+    while(a < 10) {
+        a = a + 1;
+    }
+
+    for (int i = 0; i < 10; i = i + 1) {
+        x = x + y;
+        continue;
+        break;
+    }
+
+    testFunction(10 + 30, 20 * 2 + 1);
+    emptyFunction();
+}
+
+void testFunction(int a, int b) {
+    int c = a + b;
+    return;
+}
+
+void emptyFunction() {
+    
+}
