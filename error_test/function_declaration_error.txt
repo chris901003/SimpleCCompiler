@@ -1,0 +1,1 @@
+int something(int a, int b); // There should not be parameter names

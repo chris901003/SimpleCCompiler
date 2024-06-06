@@ -1,0 +1,3 @@
+int main() {
+    string a = ""; // Not support string type
+}

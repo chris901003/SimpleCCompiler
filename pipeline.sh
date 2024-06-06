@@ -19,3 +19,17 @@ test_files=(
 for file in "${test_files[@]}"; do
     ./${EXECUTABLE} < ./test/${file} > ./test_result/${file}
 done
+
+error_test_files=(
+    "variable_declaration_assignment_error.txt"
+    "if_statement_error.txt"
+    "while_statement_error.txt"
+    "for_statement_error.txt"
+    "function_declaration_error.txt"
+    "function_definition_error.txt"
+    "call_function_error.txt"
+)
+
+for file in "${error_test_files[@]}"; do
+    ./${EXECUTABLE} < ./error_test/${file} > ./error_test_result/${file}
+done
