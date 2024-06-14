@@ -28,10 +28,15 @@ void Parser::GlobalStatement() {
     }
 }
 
-void Parser::DeclarationStatement() {
-    // DeclarationStatement -> VariableType DeclarationVariableList ;
+void Parser::DeclarationExpression() {
+    // DeclarationExpression -> VariableType DeclarationVariableList
     this->VariableType();
     this->DeclarationVariableList();
+}
+
+void Parser::DeclarationStatement() {
+    // DeclarationStatement -> DeclarationExpression ;
+    this->DeclarationExpression();
     if (this->currentToken.type == SEMICOLON) {
         this->getNextToken();
     } else {
@@ -77,25 +82,30 @@ void Parser::DeclarationVariable() {
     }
 }
 
-void Parser::AssignmentStatement() {
-    // AssignmentStatement -> Identifier = Expression ;
+void Parser::AssignmentExpression() {
+    // AssignmentExpression -> Identifier = Expression
     if (this->currentToken.type == Identifier) {
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
             this->Expression();
-            if (this->currentToken.type == SEMICOLON) {
-                this->getNextToken();
-            } else {
-                std::cerr << "Error: Expected Semicolon" << std::endl;
-                exit(1);
-            }
         } else {
             std::cerr << "Error: Expected Assignment Operator" << std::endl;
             exit(1);
         }
     } else {
         std::cerr << "Error: Expected Identifier" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::AssignmentStatement() {
+    // AssignmentStatement -> AssignmentExpression ;
+    this->AssignmentExpression();
+    if (this->currentToken.type == SEMICOLON) {
+        this->getNextToken();
+    } else {
+        std::cerr << "Error: Expected Semicolon" << std::endl;
         exit(1);
     }
 }
@@ -109,7 +119,7 @@ void Parser::Statements() {
 }
 
 void Parser::Statement() {
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | ForStatement | £`
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
@@ -118,6 +128,8 @@ void Parser::Statement() {
         this->IfStatement();
     } else if (this->currentToken.type == WHILE) {
         this->WhileStatement();
+    } else if (this->currentToken.type == FOR) {
+        this->ForStatement();
     }
 }
 
@@ -303,6 +315,18 @@ void Parser::LoopBlock() {
     }
 }
 
+void Parser::ForInitExpression() {
+    // ForInitExpression -> AssignmentExpression | DeclarationExpression
+    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+        this->DeclarationExpression();
+    } else if (this->currentToken.type == Identifier) {
+        this->AssignmentExpression();
+    } else {
+        std::cerr << "Error: Expected Declaration or Assignment Expression" << std::endl;
+        exit(1);
+    }
+}
+
 void Parser::IfStatement() {
     // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
     if (this->currentToken.type == IF) {
@@ -351,6 +375,44 @@ void Parser::WhileStatement() {
         }
     } else {
         std::cerr << "Error: Expected While Statement" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::ForStatement() {
+    // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
+    if (this->currentToken.type == FOR) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->ForInitExpression();
+            if (this->currentToken.type == SEMICOLON) {
+                this->getNextToken();
+                this->ConditionExpression();
+                if (this->currentToken.type == SEMICOLON) {
+                    this->getNextToken();
+                    this->AssignmentExpression();
+                    if (this->currentToken.type == RIGHT_PAREN) {
+                        this->getNextToken();
+                        this->LoopBlock();
+                    } else {
+                        std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                        exit(1);
+                    }
+                } else {
+                    std::cerr << "Error: Expected Semicolon" << std::endl;
+                    exit(1);
+                }
+            } else {
+                std::cerr << "Error: Expected Semicolon" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected For Statement" << std::endl;
         exit(1);
     }
 }
@@ -433,15 +495,17 @@ void Parser::startParse() {
     // Globalstatments -> Globalstatment Globalstatments | £`
     // Globalstatment -> FunctionDefinition
 
-    // DeclarationStatement -> VariableType DeclarationVariableList ;
+    // DeclarationExpression -> VariableType DeclarationVariableList
+    // DeclarationStatement -> DeclarationExpression ;
     // VariableType -> Int | Float | Void
     // DeclarationVariableList -> DeclarationVariable | DeclarationVariableList , DeclarationVariable
     // DeclarationVariable -> Identifier | Identifier ASSIGN Expression
 
-    // AssignmentStatement -> Identifier = Expression ;
+    // AssignmentExpression -> Identifier = Expression
+    // AssignmentStatement -> AssignmentExpression ;
 
     // Statements -> Statement Statements | £`
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | ForStatement | £`
 
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
     // Parameters -> £` | ParameterList
@@ -459,8 +523,11 @@ void Parser::startParse() {
     // Block -> { FunctionBlockStatements } | FunctionBlockStatement
     // LoopBlock -> { LoopBlockStatements } | LoopBlockStatement
 
+    // ForInitExpression -> AssignmentExpression | DeclarationExpression
+
     // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
     // WhileStatement -> while ( ConditionExpression ) LoopBlock
+    // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
 
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
 

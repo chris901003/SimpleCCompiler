@@ -13,11 +13,13 @@ class Parser {
         void GlobalStatements();
         void GlobalStatement();
 
+        void DeclarationExpression();
         void DeclarationStatement();
         void VariableType();
         void DeclarationVariableList();
         void DeclarationVariable();
 
+        void AssignmentExpression();
         void AssignmentStatement();
 
         void Statements();
@@ -39,8 +41,11 @@ class Parser {
         void Block();
         void LoopBlock();
 
+        void ForInitExpression();
+
         void IfStatement();
         void WhileStatement();
+        void ForStatement();
 
         void ConditionExpression();
 
