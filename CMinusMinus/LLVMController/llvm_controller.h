@@ -48,6 +48,8 @@ class LLVMController {
         void createMultiplication();
         void createDivision();
         void createModulo();
+        void createReturnWithoutValue();
+        void createReturnWithValue();
 };
 
 #endif

@@ -248,10 +248,12 @@ void Parser::ReturnStatement() {
     if (this->currentToken.type == RETURN) {
         this->getNextToken();
         if (this->currentToken.type == SEMICOLON) {
+            this->llvmController->createReturnWithoutValue();
             this->getNextToken();
         } else {
             this->Expression();
             if (this->currentToken.type == SEMICOLON) {
+                this->llvmController->createReturnWithValue();
                 this->getNextToken();
             } else {
                 std::cerr << "ReturnStatement Error: Expected Semicolon" << std::endl;

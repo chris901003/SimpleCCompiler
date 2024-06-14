@@ -15,6 +15,14 @@ LLVMController::LLVMController() {
 }
 
 void LLVMController::showLLVMCode() {
+    std::error_code EC;
+    llvm::raw_fd_ostream dest("a.ll", EC);
+    if (EC) {
+        llvm::errs() << "Could not open file: " << EC.message() << "\n";
+        return;
+    }
+    module->print(dest, nullptr);
+    dest.close();
     module->print(errs(), nullptr);
 }
 
@@ -228,4 +236,14 @@ void LLVMController::createModulo() {
     intValueStack.pop();
     Value *modulo = builder->CreateSRem(lhs, rhs, "modulo");
     intValueStack.push(modulo);
+}
+
+void LLVMController::createReturnWithoutValue() {
+    builder->CreateRetVoid();
+}
+
+void LLVMController::createReturnWithValue() {
+    Value *returnValue = intValueStack.top();
+    intValueStack.pop();
+    builder->CreateRet(returnValue);
 }
