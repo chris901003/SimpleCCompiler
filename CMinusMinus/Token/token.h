@@ -12,7 +12,7 @@ enum TokenType {
     Plus, Minus, Multiply, Divide, Modulus,
     LessThan, LessThanEqual, GreaterThan, GreaterThanEqual, Equal, NotEqual,
     ASSIGN, LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, SEMICOLON, COMMA,
-    RETURN,
+    RETURN, BREAK, CONTINUE,
     EOF_TOKEN, UNKNOWN
 };
 

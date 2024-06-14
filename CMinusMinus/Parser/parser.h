@@ -32,7 +32,12 @@ class Parser {
         void FunctionBlockStatement();
         void ReturnStatement();
 
+        void LoopBlockStatements();
+        void LoopBlockStatement();
+        void FlowBreakStatement();
+
         void Block();
+        void LoopBlock();
 
         void IfStatement();
         void WhileStatement();

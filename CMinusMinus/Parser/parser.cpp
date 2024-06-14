@@ -228,11 +228,54 @@ void Parser::ReturnStatement() {
     }
 }
 
+void Parser::LoopBlockStatements() {
+    // LoopBlockStatements -> LoopBlockStatement LoopBlockStatements | £`
+    this->LoopBlockStatement();
+    if (this->currentToken.type != RIGHT_BRACE) {
+        this->LoopBlockStatements();
+    }
+}
+
+void Parser::LoopBlockStatement() {
+    // LoopBlockStatement -> Statement | ReturnStatement | FlowBreakStatement
+    if (this->currentToken.type == RETURN) {
+        this->ReturnStatement();
+    } else if (this->currentToken.type == BREAK || this->currentToken.type == CONTINUE) {
+        this->FlowBreakStatement();
+    } else {
+        this->Statement();
+    }
+}
+
+void Parser::FlowBreakStatement() {
+    // FlowBreakStatement -> break ; | continue ;
+    if (this->currentToken.type == BREAK) {
+        this->getNextToken();
+        if (this->currentToken.type == SEMICOLON) {
+            this->getNextToken();
+        } else {
+            std::cerr << "Error: Expected Semicolon" << std::endl;
+            exit(1);
+        }
+    } else if (this->currentToken.type == CONTINUE) {
+        this->getNextToken();
+        if (this->currentToken.type == SEMICOLON) {
+            this->getNextToken();
+        } else {
+            std::cerr << "Error: Expected Semicolon" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected Break or Continue Statement" << std::endl;
+        exit(1);
+    }
+}
+
 void Parser::Block() {
-    // Block -> { Statements } | Statement
+    // Block -> { FunctionBlockStatements } | FunctionBlockStatement
     if (this->currentToken.type == LEFT_BRACE) {
         this->getNextToken();
-        this->Statements();
+        this->FunctionBlockStatements();
         if (this->currentToken.type == RIGHT_BRACE) {
             this->getNextToken();
         } else {
@@ -240,7 +283,23 @@ void Parser::Block() {
             exit(1);
         }
     } else {
-        this->Statement();    
+        this->FunctionBlockStatement();    
+    }
+}
+
+void Parser::LoopBlock() {
+    // LoopBlock -> { LoopBlockStatements } | LoopBlockStatement
+    if (this->currentToken.type == LEFT_BRACE) {
+        this->getNextToken();
+        this->LoopBlockStatements();
+        if (this->currentToken.type == RIGHT_BRACE) {
+            this->getNextToken();
+        } else {
+            std::cerr << "Error: Expected Right Brace" << std::endl;
+            exit(1);
+        }
+    } else {
+        this->LoopBlockStatement();
     }
 }
 
@@ -273,7 +332,7 @@ void Parser::IfStatement() {
 }
 
 void Parser::WhileStatement() {
-    // WhileStatement -> while ( ConditionExpression ) Block
+    // WhileStatement -> while ( ConditionExpression ) LoopBlock
     if (this->currentToken.type == WHILE) {
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
@@ -281,7 +340,7 @@ void Parser::WhileStatement() {
             this->ConditionExpression();
             if (this->currentToken.type == RIGHT_PAREN) {
                 this->getNextToken();
-                this->Block();
+                this->LoopBlock();
             } else {
                 std::cerr << "Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
@@ -393,10 +452,15 @@ void Parser::startParse() {
     // FunctionBlockStatement -> Statement | ReturnStatement
     // ReturnStatement -> retrun ; | return Expression ;
 
-    // Block -> { Statements } | Statement
+    // LoopBlockStatements -> LoopBlockStatement LoopBlockStatements | £`
+    // LoopBlockStatement -> Statement | ReturnStatement | FlowBreakStatement
+    // FlowBreakStatement -> break ; | continue ;
+
+    // Block -> { FunctionBlockStatements } | FunctionBlockStatement
+    // LoopBlock -> { LoopBlockStatements } | LoopBlockStatement
 
     // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
-    // WhileStatement -> while ( ConditionExpression ) Block
+    // WhileStatement -> while ( ConditionExpression ) LoopBlock
 
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
 
