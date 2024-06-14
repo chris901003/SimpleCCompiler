@@ -19,8 +19,15 @@ void Parser::GlobalStatements() {
 }
 
 void Parser::GlobalStatement() {
-    // Globalstatment -> DeclarationStatement
-    this->DeclarationStatement();
+    // Globalstatment -> DeclarationStatement | AssignmentStatement
+    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+        this->DeclarationStatement();
+    } else if (this->currentToken.type == Identifier) {
+        this->AssignmentStatement();
+    } else {
+        std::cerr << "Error: Expected Declaration or Assignment Statement" << std::endl;
+        exit(1);
+    }
 }
 
 void Parser::DeclarationStatement() {
@@ -65,6 +72,29 @@ void Parser::DeclarationVariable() {
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
             this->Expression();
+        }
+    } else {
+        std::cerr << "Error: Expected Identifier" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::AssignmentStatement() {
+    // AssignmentStatement -> Identifier = Expression ;
+    if (this->currentToken.type == Identifier) {
+        this->getNextToken();
+        if (this->currentToken.type == ASSIGN) {
+            this->getNextToken();
+            this->Expression();
+            if (this->currentToken.type == SEMICOLON) {
+                this->getNextToken();
+            } else {
+                std::cerr << "Error: Expected Semicolon" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "Error: Expected Assignment Operator" << std::endl;
+            exit(1);
         }
     } else {
         std::cerr << "Error: Expected Identifier" << std::endl;
@@ -124,11 +154,12 @@ void Parser::Factor() {
 
 void Parser::startParse() {
     // Globalstatments -> Globalstatment Globalstatments | £`
-    // Globalstatment -> DeclarationStatement
+    // Globalstatment -> DeclarationStatement | AssignmentStatement
     // DeclarationStatement -> VariableType DeclarationVariableList ;
     // VariableType -> Int | Float | Void
     // DeclarationVariableList -> DeclarationVariable | DeclarationVariableList , DeclarationVariable
     // DeclarationVariable -> Identifier | Identifier ASSIGN Expression
+    // AssignmentStatement -> Identifier = Expression ;
     // Expression -> Term | Expression + Term | Expression - Term
     // Term -> Factor | Term * Factor | Term / Factor | Term % Factor
     // Factor -> ( Expression ) | IntValue | FloatValue | Identifier

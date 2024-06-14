@@ -16,6 +16,7 @@ class Parser {
         void VariableType();
         void DeclarationVariableList();
         void DeclarationVariable();
+        void AssignmentStatement();
         void Expression();
         void Term();
         void Factor();
