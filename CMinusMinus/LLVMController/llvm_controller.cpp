@@ -150,7 +150,8 @@ void LLVMController::pushVariableToValueStack(string variableName) {
         cout << "Variable " << variableName << " not found" << endl;
         exit(1);
     }
-    intValueStack.push(variable);
+    Value *variableValue = builder->CreateLoad(getIntType(), variable);
+    intValueStack.push(variableValue);
 }
 
 void LLVMController::pushOperationStack(char operation) {
