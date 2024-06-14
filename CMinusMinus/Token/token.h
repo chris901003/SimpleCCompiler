@@ -8,7 +8,7 @@ enum TokenType {
     Identifier,
     IntValue,
     Void, Int,
-    IF, ELSE, WHILE, FOR,
+    IF, ELSE, WHILE, FOR, Print,
     Plus, Minus, Multiply, Divide, Modulus,
     LessThan, LessThanEqual, GreaterThan, GreaterThanEqual, Equal, NotEqual,
     ASSIGN, LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, SEMICOLON, COMMA,

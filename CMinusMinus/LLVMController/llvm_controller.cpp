@@ -107,12 +107,7 @@ void LLVMController::createVariable() {
     }
 }
 
-void LLVMController::assignVariable() {
-    AllocaInst* variable = this->findAllocaByName(builder->GetInsertBlock()->getParent(), variableName);
-    if (variable == nullptr) {
-        cout << "Variable " << variableName << " not found" << endl;
-        exit(1);
-    }
+void LLVMController::calIntValueStack() {
     while (this->operationStack.size() > 0) {
         char lastOperation = this->operationStack.top();
         this->operationStack.pop();
@@ -134,6 +129,15 @@ void LLVMController::assignVariable() {
                 break;
         }
     }
+}
+
+void LLVMController::assignVariable() {
+    AllocaInst* variable = this->findAllocaByName(builder->GetInsertBlock()->getParent(), variableName);
+    if (variable == nullptr) {
+        cout << "Variable " << variableName << " not found" << endl;
+        exit(1);
+    }
+    this->calIntValueStack();
     Value *value = intValueStack.top();
     intValueStack.pop();
     builder->CreateStore(value, variable);
@@ -247,4 +251,25 @@ void LLVMController::createReturnWithValue() {
     Value *returnValue = intValueStack.top();
     intValueStack.pop();
     builder->CreateRet(returnValue);
+}
+
+void LLVMController::createPrintFunction() {
+    // Create a pointer type to i8 (i8*)
+    llvm::PointerType* int8PtrType = llvm::PointerType::get(llvm::Type::getInt8Ty(*context), 0);
+
+    // Create the printf function type: int (i8*, ...)
+    llvm::FunctionType* printfFuncType = llvm::FunctionType::get(
+        llvm::Type::getInt32Ty(*context),  // Return type: i32
+        { int8PtrType },  // Argument types: i8*
+        true  // Variadic function: printf is variadic
+    );
+    this->printfFunc = Function::Create(printfFuncType, Function::ExternalLinkage, "printf", *module);
+}
+
+void LLVMController::callPrintFunction() {
+    llvm::Constant* formatStr = builder->CreateGlobalStringPtr("%d\n");
+    this->calIntValueStack();
+    llvm::Value* printfArgs[] = { formatStr, intValueStack.top() };
+    intValueStack.pop();
+    builder->CreateCall(printfFunc, printfArgs);
 }

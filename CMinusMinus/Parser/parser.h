@@ -50,6 +50,7 @@ class Parser {
         void IfStatement();
         void WhileStatement();
         void ForStatement();
+        void PrintStatement();
 
         void CallFunctionExpression();
         void CallFunctionStatement();

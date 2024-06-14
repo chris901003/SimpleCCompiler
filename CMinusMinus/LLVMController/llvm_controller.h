@@ -18,11 +18,13 @@ class LLVMController {
         LLVMContext *context;
         Module *module;
         IRBuilder<> *builder;
+        Function *printfFunc;
         Type* getIntType();
         Type* getFloatType();
         int operationPriority(char operation);
         bool variableIsExist(Function *function, string &name);
         AllocaInst* findAllocaByName(Function* function, string& variableName);
+        void calIntValueStack();
 
     public:
         LLVMController();
@@ -50,6 +52,8 @@ class LLVMController {
         void createModulo();
         void createReturnWithoutValue();
         void createReturnWithValue();
+        void createPrintFunction();
+        void callPrintFunction();
 };
 
 #endif

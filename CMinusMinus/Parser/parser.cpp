@@ -131,7 +131,7 @@ void Parser::Statements() {
 }
 
 void Parser::Statement() {
-    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | PrintStatement | £`
     if (this->currentToken.type == Int || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
@@ -149,6 +149,8 @@ void Parser::Statement() {
         this->WhileStatement();
     } else if (this->currentToken.type == FOR) {
         this->ForStatement();
+    } else if (this->currentToken.type == Print) {
+        this->PrintStatement();
     }
 }
 
@@ -443,6 +445,36 @@ void Parser::ForStatement() {
     }
 }
 
+void Parser::PrintStatement() {
+    // PrintStatemnt -> print ( Expression ) ;
+    if (this->currentToken.type == Print) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->Expression();
+            if (this->currentToken.type == RIGHT_PAREN) {
+                this->llvmController->callPrintFunction();
+                this->getNextToken();
+                if (this->currentToken.type == SEMICOLON) {
+                    this->getNextToken();
+                } else {
+                    std::cerr << "PrintStatement Error: Expected Semicolon" << std::endl;
+                    exit(1);
+                }
+            } else {
+                std::cerr << "PrintStatement Error: Expected Right Parenthesis" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "PrintStatement Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "PrintStatement Error: Expected Print Statement" << std::endl;
+        exit(1);
+    }
+}
+
 void Parser::CallFunctionExpression() {
     // CallFunctionExpression -> Identifier ( CallFunctionParameters )
     if (this->currentToken.type == Identifier) {
@@ -578,7 +610,7 @@ void Parser::startParse() {
     // AssignmentStatement -> AssignmentExpression ;
 
     // Statements -> Statement Statements | £`
-    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | PrintStatement | £`
 
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
     // Parameters -> £` | ParameterList
@@ -601,6 +633,7 @@ void Parser::startParse() {
     // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
     // WhileStatement -> while ( ConditionExpression ) LoopBlock
     // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
+    // PrintStatemnt -> print ( Expression ) ;
 
     // CallFunctionExpression -> Identifier ( CallFunctionParameters )
     // CallFunctionStatement -> CallFunctionExpression ;
@@ -613,6 +646,7 @@ void Parser::startParse() {
     // Factor -> IntValue | Identifier | CallFunctionExpression
 
     this->getNextToken();
+    this->llvmController->createPrintFunction();
     GlobalStatements();
 
     std::cout << std::endl;
