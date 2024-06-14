@@ -154,12 +154,17 @@ Token Lexer::getNextToken() {
 
 void Lexer::startLexer() {
     this->getNextChar();
-    while (this->currentChar != EOF) {
+    while (true) {
         this->tokens.push_back(this->getNextToken());
         if (this->tokens.back().type == UNKNOWN) {
             std::cout << "Unknown token at line " << this->lines << " and row " << this->startRow << std::endl;
             return;
         }
         std::cout << "Token: " << this->tokens.back().toString() << " at line " << this->lines << " and row " << this->startRow << std::endl;
+        if (this->tokens.back().type == EOF_TOKEN) {
+            break;
+        }
     }
+    std::cout << "Tokens: " << this->tokens.size() << std::endl;
+    std::cout << "Total lines: " << this->lines << std::endl;
 }
