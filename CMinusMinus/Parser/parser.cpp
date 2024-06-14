@@ -1,9 +1,12 @@
 #include <vector>
 #include <iostream>
 #include "./parser.h"
+#include "../LLVMController/llvm_controller.h"
 
 Parser::Parser(std::vector<Token> tokens) {
     this->tokens = tokens;
+    this->tokenIndex = 0;
+    this->llvmController = new LLVMController();
 }
 
 void Parser::getNextToken() {

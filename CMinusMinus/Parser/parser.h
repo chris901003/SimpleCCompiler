@@ -3,11 +3,14 @@
 
 #include <vector>
 #include "../Token/token.h"
+#include "../LLVMController/llvm_controller.h"
 
 class Parser {
     private:
         Token currentToken;
         int tokenIndex;
+        LLVMController *llvmController;
+
         void getNextToken();
         void getPrevToken();
 
