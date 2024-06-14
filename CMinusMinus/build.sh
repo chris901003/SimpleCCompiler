@@ -5,4 +5,4 @@ files=(
 )
 files_string=$(printf " %s" "${files[@]}")
 
-g++ -o $EXECUTABLE main.cpp $files_string
+g++ -o $EXECUTABLE main.cpp $files_string --std=c++17

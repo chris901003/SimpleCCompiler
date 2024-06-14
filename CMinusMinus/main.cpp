@@ -7,6 +7,6 @@ int main() {
     cout << "Starting C-- Compiler" << endl;
     Lexer *lexer = new Lexer();
     lexer->startLexer();
-    cout << lexer->tokens[0].toString() << endl;
+    cout << "Tokens: " << lexer->tokens.size() << endl;
     return 0;
 }
