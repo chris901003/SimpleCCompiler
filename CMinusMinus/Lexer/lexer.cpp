@@ -18,7 +18,6 @@ Lexer::Lexer() {
         {"for", Token(FOR, "for")},
         {"void", Token(Void, "void")},
         {"int", Token(Int, "int")},
-        {"float", Token(Float, "float")},
         {"return", Token(RETURN, "return")},
         {"break", Token(BREAK, "break")},
         {"continue", Token(CONTINUE, "continue")}
@@ -70,17 +69,6 @@ Token Lexer::getNextToken() {
         while (isdigit(this->currentChar)) {
             number += this->currentChar;
             this->getNextChar();
-        }
-        if (this->currentChar == '.') {
-            number += this->currentChar;
-            this->getNextChar();
-            while (isdigit(this->currentChar)) {
-                number += this->currentChar;
-                this->getNextChar();
-            }
-            Token token(FloatValue);
-            token.fValue = std::stof(number);
-            return token;
         }
         Token token(IntValue);
         token.iValue = std::stoi(number);

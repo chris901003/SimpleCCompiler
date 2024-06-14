@@ -6,8 +6,8 @@
 
 enum TokenType {
     Identifier,
-    IntValue, FloatValue,
-    Void, Int, Float,
+    IntValue,
+    Void, Int,
     IF, ELSE, WHILE, FOR,
     Plus, Minus, Multiply, Divide, Modulus,
     LessThan, LessThanEqual, GreaterThan, GreaterThanEqual, Equal, NotEqual,
@@ -21,21 +21,17 @@ class Token {
         TokenType type;
         std::string sValue;
         int iValue;
-        float fValue;
 
-        Token(TokenType type = UNKNOWN, std::string sValue = "", int iValue = 0, float fValue = 0.0) {
+        Token(TokenType type = UNKNOWN, std::string sValue = "", int iValue = 0) {
             this->type = type;
             this->sValue = sValue;
             this->iValue = iValue;
-            this->fValue = fValue;
         }
 
         std::string toString() {
             std::string result = "Token(" + std::to_string(this->type);
             if (this->type == IntValue) {
                 result += ", " + std::to_string(this->iValue);
-            } else if (this->type == FloatValue) {
-                result += ", " + std::to_string(this->fValue);
             } else {
                 result += ", " + this->sValue;
             }

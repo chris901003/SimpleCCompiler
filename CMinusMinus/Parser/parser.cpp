@@ -28,7 +28,7 @@ void Parser::GlobalStatements() {
 
 void Parser::GlobalStatement() {
     // Globalstatment -> FunctionDefinition
-    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+    if (this->currentToken.type == Int || this->currentToken.type == Void) {
         this->FunctionDefinition();
     } else {
         std::cerr << "GlobalStatement Error: Expected Declaration, Assignment or Function Definition" << std::endl;
@@ -54,16 +54,14 @@ void Parser::DeclarationStatement() {
 }
 
 void Parser::VariableType() {
-    // VariableType -> Int | Float | Void
+    // VariableType -> Int | Void
     llvmController->variableType = this->currentToken.type;
     if (this->currentToken.type == Int) {
-        this->getNextToken();
-    } else if (this->currentToken.type == Float) {
         this->getNextToken();
     } else if (this->currentToken.type == Void) {
         this->getNextToken();
     } else {
-        std::cerr << "VariableType Error: Expected Int, Float or Void" << std::endl;
+        std::cerr << "VariableType Error: Expected Int or Void" << std::endl;
         exit(1);
     }
 }
@@ -80,10 +78,13 @@ void Parser::DeclarationVariableList() {
 void Parser::DeclarationVariable() {
     // DeclarationVariable -> Identifier | Identifier ASSIGN Expression
     if (this->currentToken.type == Identifier) {
+        this->llvmController->variableName = this->currentToken.sValue;
+        this->llvmController->createVariable();
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
             this->Expression();
+            this->llvmController->assignVariable();
         }
     } else {
         std::cerr << "DeclarationVariable Error: Expected Identifier" << std::endl;
@@ -94,10 +95,12 @@ void Parser::DeclarationVariable() {
 void Parser::AssignmentExpression() {
     // AssignmentExpression -> Identifier = Expression
     if (this->currentToken.type == Identifier) {
+        this->llvmController->variableName = this->currentToken.sValue;
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
             this->Expression();
+            this->llvmController->assignVariable();
         } else {
             std::cerr << "AssignmentExpression Error: Expected Assignment Operator" << std::endl;
             exit(1);
@@ -129,7 +132,7 @@ void Parser::Statements() {
 
 void Parser::Statement() {
     // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | £`
-    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+    if (this->currentToken.type == Int || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
         this->getNextToken();
@@ -180,7 +183,7 @@ void Parser::FunctionDefinition() {
 
 void Parser::Parameters() {
     // Parameters -> £` | ParameterList
-    if (this->currentToken.type == Int || this->currentToken.type == Float) {
+    if (this->currentToken.type == Int) {
         this->ParameterList();
     }
 }
@@ -338,7 +341,7 @@ void Parser::LoopBlock() {
 
 void Parser::ForInitExpression() {
     // ForInitExpression -> AssignmentExpression | DeclarationExpression
-    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+    if (this->currentToken.type == Int || this->currentToken.type == Void) {
         this->DeclarationExpression();
     } else if (this->currentToken.type == Identifier) {
         this->AssignmentExpression();
@@ -513,9 +516,11 @@ void Parser::Expression() {
     this->Term();
     if (this->currentToken.type == Plus) {
         this->getNextToken();
+        this->llvmController->pushOperationStack('+');
         this->Expression();
     } else if (this->currentToken.type == Minus) {
         this->getNextToken();
+        this->llvmController->pushOperationStack('-');
         this->Expression();
     }
 }
@@ -525,38 +530,32 @@ void Parser::Term() {
     this->Factor();
     if (this->currentToken.type == Multiply) {
         this->getNextToken();
+        this->llvmController->pushOperationStack('*');
         this->Term();
     } else if (this->currentToken.type == Divide) {
         this->getNextToken();
+        this->llvmController->pushOperationStack('/');
         this->Term();
     } else if (this->currentToken.type == Modulus) {
         this->getNextToken();
+        this->llvmController->pushOperationStack('%');
         this->Term();
     }
 }
 
 void Parser::Factor() {
-    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier | CallFunctionExpression
-    if (this->currentToken.type == LEFT_PAREN) {
-        this->getNextToken();
-        this->Expression();
-        if (this->currentToken.type == RIGHT_PAREN) {
-            this->getNextToken();
-        } else {
-            std::cerr << "Error: Expected Right Parenthesis" << std::endl;
-            exit(1);
-        }
-    } else if (this->currentToken.type == IntValue) {
-        this->getNextToken();
-    } else if (this->currentToken.type == FloatValue) {
+    // Factor -> IntValue | Identifier | CallFunctionExpression
+    if (this->currentToken.type == IntValue) {
+        this->llvmController->pushIntValueStack(this->currentToken.iValue);
         this->getNextToken();
     } else if (this->currentToken.type == Identifier) {
+        string variableName = this->currentToken.sValue;
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getPrevToken();
             this->CallFunctionExpression();
         }
-        // Normal Identifier
+        this->llvmController->pushVariableToValueStack(variableName);
     } else {
         std::cerr << "Error: Expected Expression" << std::endl;
         exit(1);
@@ -569,7 +568,7 @@ void Parser::startParse() {
 
     // DeclarationExpression -> VariableType DeclarationVariableList
     // DeclarationStatement -> DeclarationExpression ;
-    // VariableType -> Int | Float | Void
+    // VariableType -> Int | Void
     // DeclarationVariableList -> DeclarationVariable | DeclarationVariableList , DeclarationVariable
     // DeclarationVariable -> Identifier | Identifier ASSIGN Expression
 
@@ -609,7 +608,7 @@ void Parser::startParse() {
 
     // Expression -> Term | Expression + Term | Expression - Term
     // Term -> Factor | Term * Factor | Term / Factor | Term % Factor
-    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier | CallFunctionExpression
+    // Factor -> IntValue | Identifier | CallFunctionExpression
 
     this->getNextToken();
     GlobalStatements();
