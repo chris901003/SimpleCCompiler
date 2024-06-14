@@ -19,13 +19,11 @@ void Parser::GlobalStatements() {
 }
 
 void Parser::GlobalStatement() {
-    // Globalstatment -> DeclarationStatement | AssignmentStatement
+    // Globalstatment -> FunctionDefinition
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
-        this->DeclarationStatement();
-    } else if (this->currentToken.type == Identifier) {
-        this->AssignmentStatement();
+        this->FunctionDefinition();
     } else {
-        std::cerr << "Error: Expected Declaration or Assignment Statement" << std::endl;
+        std::cerr << "Error: Expected Declaration, Assignment or Function Definition" << std::endl;
         exit(1);
     }
 }
@@ -102,6 +100,130 @@ void Parser::AssignmentStatement() {
     }
 }
 
+void Parser::Statements() {
+    // Statements -> Statement Statements | £`
+    this->Statement();
+    if (this->currentToken.type != RIGHT_BRACE) {
+        this->Statements();
+    }
+}
+
+void Parser::Statement() {
+    // Statement -> DeclarationStatement | AssignmentStatement | £`
+    if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
+        this->DeclarationStatement();
+    } else if (this->currentToken.type == Identifier) {
+        this->AssignmentStatement();
+    }
+}
+
+void Parser::FunctionDefinition() {
+    // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
+    this->VariableType();
+    if (this->currentToken.type == Identifier) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->Parameters();
+            if (this->currentToken.type == RIGHT_PAREN) {
+                this->getNextToken();
+                this->FunctionBlock();
+            } else {
+                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected Identifier" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::Parameters() {
+    // Parameters -> £` | ParameterList
+    if (this->currentToken.type == Int || this->currentToken.type == Float) {
+        this->ParameterList();
+    }
+}
+
+void Parser::ParameterList() {
+    // ParameterList -> Parameter | ParameterList , Parameter
+    this->Parameter();
+    if (this->currentToken.type == COMMA) {
+        this->getNextToken();
+        this->ParameterList();
+    }
+}
+
+void Parser::Parameter() {
+    // Parameter -> VariableType Identifier
+    this->VariableType();
+    if (this->currentToken.type == Identifier) {
+        this->getNextToken();
+    } else {
+        std::cerr << "Error: Expected Identifier" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::FunctionBlock() {
+    // FunctionBlock -> { FunctionBlockStatements }
+    if (this->currentToken.type == LEFT_BRACE) {
+        this->getNextToken();
+        this->FunctionBlockStatements();
+        if (this->currentToken.type == RIGHT_BRACE) {
+            this->getNextToken();
+        } else {
+            std::cerr << "Error: Expected Right Brace" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected Left Brace" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::FunctionBlockStatements() {
+    // FunctionBlockStatements -> FunctionBlockStatement FunctionBlockStatements | £`
+    this->FunctionBlockStatement();
+    if (this->currentToken.type != RIGHT_BRACE) {
+        this->FunctionBlockStatements();
+    }
+}
+
+void Parser::FunctionBlockStatement() {
+    // FunctionBlockStatement -> Statements | ReturnStatement
+    if (this->currentToken.type == RETURN) {
+        this->ReturnStatement();
+    } else {
+        this->Statements();
+    }
+}
+
+void Parser::ReturnStatement() {
+    // ReturnStatement -> retrun ; | return Expression ;
+    if (this->currentToken.type == RETURN) {
+        this->getNextToken();
+        if (this->currentToken.type == SEMICOLON) {
+            this->getNextToken();
+        } else {
+            this->Expression();
+            if (this->currentToken.type == SEMICOLON) {
+                this->getNextToken();
+            } else {
+                std::cerr << "Error: Expected Semicolon" << std::endl;
+                exit(1);
+            }
+        }
+    } else {
+        std::cerr << "Error: Expected Return Statement" << std::endl;
+        exit(1);
+    }
+}
+
 void Parser::Expression() {
     // Expression -> Term | Expression + Term | Expression - Term
     this->Term();
@@ -154,12 +276,27 @@ void Parser::Factor() {
 
 void Parser::startParse() {
     // Globalstatments -> Globalstatment Globalstatments | £`
-    // Globalstatment -> DeclarationStatement | AssignmentStatement
+    // Globalstatment -> FunctionDefinition
+
     // DeclarationStatement -> VariableType DeclarationVariableList ;
     // VariableType -> Int | Float | Void
     // DeclarationVariableList -> DeclarationVariable | DeclarationVariableList , DeclarationVariable
     // DeclarationVariable -> Identifier | Identifier ASSIGN Expression
+
     // AssignmentStatement -> Identifier = Expression ;
+
+    // Statements -> Statement Statements | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | £`
+
+    // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
+    // Parameters -> £` | ParameterList
+    // ParameterList -> Parameter | ParameterList , Parameter
+    // Parameter -> VariableType Identifier
+    // FunctionBlock -> { FunctionBlockStatements }
+    // FunctionBlockStatements -> FunctionBlockStatement FunctionBlockStatements | £`
+    // FunctionBlockStatement -> Statements | ReturnStatement
+    // ReturnStatement -> retrun ; | return Expression ;
+
     // Expression -> Term | Expression + Term | Expression - Term
     // Term -> Factor | Term * Factor | Term / Factor | Term % Factor
     // Factor -> ( Expression ) | IntValue | FloatValue | Identifier

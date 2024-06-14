@@ -12,11 +12,26 @@ class Parser {
 
         void GlobalStatements();
         void GlobalStatement();
+
         void DeclarationStatement();
         void VariableType();
         void DeclarationVariableList();
         void DeclarationVariable();
+
         void AssignmentStatement();
+
+        void Statements();
+        void Statement();
+
+        void FunctionDefinition();
+        void Parameters();
+        void ParameterList();
+        void Parameter();
+        void FunctionBlock();
+        void FunctionBlockStatements();
+        void FunctionBlockStatement();
+        void ReturnStatement();
+
         void Expression();
         void Term();
         void Factor();

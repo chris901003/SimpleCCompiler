@@ -12,7 +12,8 @@ enum TokenType {
     Plus, Minus, Multiply, Divide, Modulus,
     LessThan, LessThanEqual, GreaterThan, GreaterThanEqual, Equal, NotEqual,
     ASSIGN, LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, SEMICOLON, COMMA,
-    EOF_TOKEN, UNKNOWN 
+    RETURN,
+    EOF_TOKEN, UNKNOWN
 };
 
 class Token {

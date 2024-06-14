@@ -18,7 +18,8 @@ Lexer::Lexer() {
         {"for", Token(FOR, "for")},
         {"void", Token(Void, "void")},
         {"int", Token(Int, "int")},
-        {"float", Token(Float, "float")}
+        {"float", Token(Float, "float")},
+        {"return", Token(RETURN, "return")}
     };
     for (auto keyword : keywordList) {
         this->keywords[keyword.first] = keyword.second;
