@@ -7,3 +7,7 @@ parser.tab.h
 test_result
 error_test_result
 parser.output
+*.ll
+*.out
+*.bc
+*.s
