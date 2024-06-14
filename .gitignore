@@ -1,5 +1,6 @@
 lex.yy.c
 file.txt
+final_test.txt
 a.out
 parser.tab.c
 parser.tab.h
