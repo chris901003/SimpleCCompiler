@@ -195,11 +195,11 @@ void Parser::FunctionBlockStatements() {
 }
 
 void Parser::FunctionBlockStatement() {
-    // FunctionBlockStatement -> Statements | ReturnStatement
+    // FunctionBlockStatement -> Statement | ReturnStatement
     if (this->currentToken.type == RETURN) {
         this->ReturnStatement();
     } else {
-        this->Statements();
+        this->Statement();
     }
 }
 
@@ -294,7 +294,7 @@ void Parser::startParse() {
     // Parameter -> VariableType Identifier
     // FunctionBlock -> { FunctionBlockStatements }
     // FunctionBlockStatements -> FunctionBlockStatement FunctionBlockStatements | £`
-    // FunctionBlockStatement -> Statements | ReturnStatement
+    // FunctionBlockStatement -> Statement | ReturnStatement
     // ReturnStatement -> retrun ; | return Expression ;
 
     // Expression -> Term | Expression + Term | Expression - Term
