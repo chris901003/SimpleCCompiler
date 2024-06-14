@@ -55,6 +55,7 @@ void Parser::DeclarationStatement() {
 
 void Parser::VariableType() {
     // VariableType -> Int | Float | Void
+    llvmController->variableType = this->currentToken.type;
     if (this->currentToken.type == Int) {
         this->getNextToken();
     } else if (this->currentToken.type == Float) {
@@ -150,13 +151,17 @@ void Parser::Statement() {
 
 void Parser::FunctionDefinition() {
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
+    this->llvmController->functionReturnType = this->currentToken.type;
     this->VariableType();
     if (this->currentToken.type == Identifier) {
+        this->llvmController->functionName = this->currentToken.sValue;
+        this->llvmController->definitionParameters = {};
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
             this->Parameters();
             if (this->currentToken.type == RIGHT_PAREN) {
+                this->llvmController->createFunctionDefinition();
                 this->getNextToken();
                 this->FunctionBlock();
             } else {
@@ -193,6 +198,7 @@ void Parser::Parameter() {
     // Parameter -> VariableType Identifier
     this->VariableType();
     if (this->currentToken.type == Identifier) {
+        this->llvmController->definitionParameters.push_back({this->currentToken.sValue, this->llvmController->variableType});
         this->getNextToken();
     } else {
         std::cerr << "Parameter Error: Expected Identifier" << std::endl;
@@ -607,4 +613,8 @@ void Parser::startParse() {
 
     this->getNextToken();
     GlobalStatements();
+
+    std::cout << std::endl;
+    std::cout << "====== LLVM IR =====" << std::endl;
+    llvmController->showLLVMCode();
 }
