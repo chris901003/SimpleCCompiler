@@ -2,6 +2,7 @@ EXECUTABLE="a.out"
 
 files=(
     "./Lexer/lexer.cpp"
+    "./Parser/parser.cpp"
 )
 files_string=$(printf " %s" "${files[@]}")
 
