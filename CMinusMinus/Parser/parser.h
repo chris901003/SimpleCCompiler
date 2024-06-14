@@ -32,6 +32,12 @@ class Parser {
         void FunctionBlockStatement();
         void ReturnStatement();
 
+        void Block();
+
+        void IfStatement();
+
+        void ConditionExpression();
+
         void Expression();
         void Term();
         void Factor();

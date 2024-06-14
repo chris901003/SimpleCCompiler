@@ -109,11 +109,13 @@ void Parser::Statements() {
 }
 
 void Parser::Statement() {
-    // Statement -> DeclarationStatement | AssignmentStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | £`
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
         this->AssignmentStatement();
+    } else if (this->currentToken.type == IF) {
+        this->IfStatement();
     }
 }
 
@@ -224,6 +226,74 @@ void Parser::ReturnStatement() {
     }
 }
 
+void Parser::Block() {
+    // Block -> { Statements } | Statement
+    if (this->currentToken.type == LEFT_BRACE) {
+        this->getNextToken();
+        this->Statements();
+        if (this->currentToken.type == RIGHT_BRACE) {
+            this->getNextToken();
+        } else {
+            std::cerr << "Error: Expected Right Brace" << std::endl;
+            exit(1);
+        }
+    } else {
+        this->Statement();    
+    }
+}
+
+void Parser::IfStatement() {
+    // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
+    if (this->currentToken.type == IF) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->ConditionExpression();
+            if (this->currentToken.type == RIGHT_PAREN) {
+                this->getNextToken();
+                this->Block();
+                if (this->currentToken.type == ELSE) {
+                    this->getNextToken();
+                    this->Block();
+                }
+            } else {
+                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected If Statement" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::ConditionExpression() {
+    // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
+    this->Expression();
+    if (this->currentToken.type == LessThan) {
+        this->getNextToken();
+        this->Expression();
+    } else if (this->currentToken.type == GreaterThan) {
+        this->getNextToken();
+        this->Expression();
+    } else if (this->currentToken.type == LessThanEqual) {
+        this->getNextToken();
+        this->Expression();
+    } else if (this->currentToken.type == GreaterThanEqual) {
+        this->getNextToken();
+        this->Expression();
+    } else if (this->currentToken.type == Equal) {
+        this->getNextToken();
+        this->Expression();
+    } else if (this->currentToken.type == NotEqual) {
+        this->getNextToken();
+        this->Expression();
+    }
+}
+
 void Parser::Expression() {
     // Expression -> Term | Expression + Term | Expression - Term
     this->Term();
@@ -286,7 +356,7 @@ void Parser::startParse() {
     // AssignmentStatement -> Identifier = Expression ;
 
     // Statements -> Statement Statements | £`
-    // Statement -> DeclarationStatement | AssignmentStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | £`
 
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
     // Parameters -> £` | ParameterList
@@ -296,6 +366,12 @@ void Parser::startParse() {
     // FunctionBlockStatements -> FunctionBlockStatement FunctionBlockStatements | £`
     // FunctionBlockStatement -> Statement | ReturnStatement
     // ReturnStatement -> retrun ; | return Expression ;
+
+    // Block -> { Statements } | Statement
+
+    // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
+
+    // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
 
     // Expression -> Term | Expression + Term | Expression - Term
     // Term -> Factor | Term * Factor | Term / Factor | Term % Factor
