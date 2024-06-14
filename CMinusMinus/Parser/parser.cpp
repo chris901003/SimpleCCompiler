@@ -109,13 +109,15 @@ void Parser::Statements() {
 }
 
 void Parser::Statement() {
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | £`
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
         this->AssignmentStatement();
     } else if (this->currentToken.type == IF) {
         this->IfStatement();
+    } else if (this->currentToken.type == WHILE) {
+        this->WhileStatement();
     }
 }
 
@@ -270,6 +272,30 @@ void Parser::IfStatement() {
     }
 }
 
+void Parser::WhileStatement() {
+    // WhileStatement -> while ( ConditionExpression ) Block
+    if (this->currentToken.type == WHILE) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->ConditionExpression();
+            if (this->currentToken.type == RIGHT_PAREN) {
+                this->getNextToken();
+                this->Block();
+            } else {
+                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "Error: Expected While Statement" << std::endl;
+        exit(1);
+    }
+}
+
 void Parser::ConditionExpression() {
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
     this->Expression();
@@ -356,7 +382,7 @@ void Parser::startParse() {
     // AssignmentStatement -> Identifier = Expression ;
 
     // Statements -> Statement Statements | £`
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | £`
 
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
     // Parameters -> £` | ParameterList
@@ -370,6 +396,7 @@ void Parser::startParse() {
     // Block -> { Statements } | Statement
 
     // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
+    // WhileStatement -> while ( ConditionExpression ) Block
 
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
 

@@ -35,6 +35,7 @@ class Parser {
         void Block();
 
         void IfStatement();
+        void WhileStatement();
 
         void ConditionExpression();
 
