@@ -9,6 +9,7 @@ class Parser {
         Token currentToken;
         int tokenIndex;
         void getNextToken();
+        void getPrevToken();
 
         void GlobalStatements();
         void GlobalStatement();
@@ -46,6 +47,10 @@ class Parser {
         void IfStatement();
         void WhileStatement();
         void ForStatement();
+
+        void CallFunctionExpression();
+        void CallFunctionStatement();
+        void CallFunctionParameters();
 
         void ConditionExpression();
 

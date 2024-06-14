@@ -10,6 +10,11 @@ void Parser::getNextToken() {
     this->currentToken = this->tokens[this->tokenIndex++];
 }
 
+void Parser::getPrevToken() {
+    this->tokenIndex--;
+    this->currentToken = this->tokens[this->tokenIndex - 1];
+}
+
 void Parser::GlobalStatements() {
     // Globalstatments -> Globalstatment Globalstatments | £`
     this->GlobalStatement();
@@ -23,7 +28,7 @@ void Parser::GlobalStatement() {
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
         this->FunctionDefinition();
     } else {
-        std::cerr << "Error: Expected Declaration, Assignment or Function Definition" << std::endl;
+        std::cerr << "GlobalStatement Error: Expected Declaration, Assignment or Function Definition" << std::endl;
         exit(1);
     }
 }
@@ -40,7 +45,7 @@ void Parser::DeclarationStatement() {
     if (this->currentToken.type == SEMICOLON) {
         this->getNextToken();
     } else {
-        std::cerr << "Error: Expected Semicolon" << std::endl;
+        std::cerr << "DeclarationStatement Error: Expected Semicolon" << std::endl;
         exit(1);
     }
 }
@@ -54,7 +59,7 @@ void Parser::VariableType() {
     } else if (this->currentToken.type == Void) {
         this->getNextToken();
     } else {
-        std::cerr << "Error: Expected Int, Float or Void" << std::endl;
+        std::cerr << "VariableType Error: Expected Int, Float or Void" << std::endl;
         exit(1);
     }
 }
@@ -77,7 +82,7 @@ void Parser::DeclarationVariable() {
             this->Expression();
         }
     } else {
-        std::cerr << "Error: Expected Identifier" << std::endl;
+        std::cerr << "DeclarationVariable Error: Expected Identifier" << std::endl;
         exit(1);
     }
 }
@@ -90,11 +95,11 @@ void Parser::AssignmentExpression() {
             this->getNextToken();
             this->Expression();
         } else {
-            std::cerr << "Error: Expected Assignment Operator" << std::endl;
+            std::cerr << "AssignmentExpression Error: Expected Assignment Operator" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected Identifier" << std::endl;
+        std::cerr << "AssignmentExpression Error: Expected Identifier" << std::endl;
         exit(1);
     }
 }
@@ -105,7 +110,7 @@ void Parser::AssignmentStatement() {
     if (this->currentToken.type == SEMICOLON) {
         this->getNextToken();
     } else {
-        std::cerr << "Error: Expected Semicolon" << std::endl;
+        std::cerr << "AssignmentStatement Error: Expected Semicolon" << std::endl;
         exit(1);
     }
 }
@@ -119,11 +124,18 @@ void Parser::Statements() {
 }
 
 void Parser::Statement() {
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | ForStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | £`
     if (this->currentToken.type == Int || this->currentToken.type == Float || this->currentToken.type == Void) {
         this->DeclarationStatement();
     } else if (this->currentToken.type == Identifier) {
-        this->AssignmentStatement();
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getPrevToken();
+            this->CallFunctionStatement();
+        } else {
+            this->getPrevToken();
+            this->AssignmentStatement();
+        }
     } else if (this->currentToken.type == IF) {
         this->IfStatement();
     } else if (this->currentToken.type == WHILE) {
@@ -145,15 +157,15 @@ void Parser::FunctionDefinition() {
                 this->getNextToken();
                 this->FunctionBlock();
             } else {
-                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                std::cerr << "FunctionDefinition Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
             }
         } else {
-            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            std::cerr << "FunctionDefinition Error: Expected Left Parenthesis" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected Identifier" << std::endl;
+        std::cerr << "FunctionDefinition Error: Expected Identifier" << std::endl;
         exit(1);
     }
 }
@@ -180,7 +192,7 @@ void Parser::Parameter() {
     if (this->currentToken.type == Identifier) {
         this->getNextToken();
     } else {
-        std::cerr << "Error: Expected Identifier" << std::endl;
+        std::cerr << "Parameter Error: Expected Identifier" << std::endl;
         exit(1);
     }
 }
@@ -193,11 +205,11 @@ void Parser::FunctionBlock() {
         if (this->currentToken.type == RIGHT_BRACE) {
             this->getNextToken();
         } else {
-            std::cerr << "Error: Expected Right Brace" << std::endl;
+            std::cerr << "FunctionBlock Error: Expected Right Brace" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected Left Brace" << std::endl;
+        std::cerr << "FunctionBlock Error: Expected Left Brace" << std::endl;
         exit(1);
     }
 }
@@ -230,12 +242,12 @@ void Parser::ReturnStatement() {
             if (this->currentToken.type == SEMICOLON) {
                 this->getNextToken();
             } else {
-                std::cerr << "Error: Expected Semicolon" << std::endl;
+                std::cerr << "ReturnStatement Error: Expected Semicolon" << std::endl;
                 exit(1);
             }
         }
     } else {
-        std::cerr << "Error: Expected Return Statement" << std::endl;
+        std::cerr << "ReturnStatement Error: Expected Return Statement" << std::endl;
         exit(1);
     }
 }
@@ -266,7 +278,7 @@ void Parser::FlowBreakStatement() {
         if (this->currentToken.type == SEMICOLON) {
             this->getNextToken();
         } else {
-            std::cerr << "Error: Expected Semicolon" << std::endl;
+            std::cerr << "FlowBreakStatement Error: Expected Semicolon" << std::endl;
             exit(1);
         }
     } else if (this->currentToken.type == CONTINUE) {
@@ -274,11 +286,11 @@ void Parser::FlowBreakStatement() {
         if (this->currentToken.type == SEMICOLON) {
             this->getNextToken();
         } else {
-            std::cerr << "Error: Expected Semicolon" << std::endl;
+            std::cerr << "FlowBreakStatement Error: Expected Semicolon" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected Break or Continue Statement" << std::endl;
+        std::cerr << "FlowBreakStatement Error: Expected Break or Continue Statement" << std::endl;
         exit(1);
     }
 }
@@ -291,7 +303,7 @@ void Parser::Block() {
         if (this->currentToken.type == RIGHT_BRACE) {
             this->getNextToken();
         } else {
-            std::cerr << "Error: Expected Right Brace" << std::endl;
+            std::cerr << "Block Error: Expected Right Brace" << std::endl;
             exit(1);
         }
     } else {
@@ -307,7 +319,7 @@ void Parser::LoopBlock() {
         if (this->currentToken.type == RIGHT_BRACE) {
             this->getNextToken();
         } else {
-            std::cerr << "Error: Expected Right Brace" << std::endl;
+            std::cerr << "LoopBlock Error: Expected Right Brace" << std::endl;
             exit(1);
         }
     } else {
@@ -322,7 +334,7 @@ void Parser::ForInitExpression() {
     } else if (this->currentToken.type == Identifier) {
         this->AssignmentExpression();
     } else {
-        std::cerr << "Error: Expected Declaration or Assignment Expression" << std::endl;
+        std::cerr << "ForInitExpression Error: Expected Declaration or Assignment Expression" << std::endl;
         exit(1);
     }
 }
@@ -342,15 +354,15 @@ void Parser::IfStatement() {
                     this->Block();
                 }
             } else {
-                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                std::cerr << "IfStatement Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
             }
         } else {
-            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            std::cerr << "IfStatement Error: Expected Left Parenthesis" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected If Statement" << std::endl;
+        std::cerr << "IfStatement Error: Expected If Statement" << std::endl;
         exit(1);
     }
 }
@@ -366,15 +378,15 @@ void Parser::WhileStatement() {
                 this->getNextToken();
                 this->LoopBlock();
             } else {
-                std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                std::cerr << "WhileStatement Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
             }
         } else {
-            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            std::cerr << "WhileStatement Error: Expected Left Parenthesis" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected While Statement" << std::endl;
+        std::cerr << "WhileStatement Error: Expected While Statement" << std::endl;
         exit(1);
     }
 }
@@ -396,24 +408,70 @@ void Parser::ForStatement() {
                         this->getNextToken();
                         this->LoopBlock();
                     } else {
-                        std::cerr << "Error: Expected Right Parenthesis" << std::endl;
+                        std::cerr << "ForStatement Error: Expected Right Parenthesis" << std::endl;
                         exit(1);
                     }
                 } else {
-                    std::cerr << "Error: Expected Semicolon" << std::endl;
+                    std::cerr << "ForStatement Error: Expected Semicolon" << std::endl;
                     exit(1);
                 }
             } else {
-                std::cerr << "Error: Expected Semicolon" << std::endl;
+                std::cerr << "ForStatement Error: Expected Semicolon" << std::endl;
                 exit(1);
             }
         } else {
-            std::cerr << "Error: Expected Left Parenthesis" << std::endl;
+            std::cerr << "ForStatement Error: Expected Left Parenthesis" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "Error: Expected For Statement" << std::endl;
+        std::cerr << "ForStatement Error: Expected For Statement" << std::endl;
         exit(1);
+    }
+}
+
+void Parser::CallFunctionExpression() {
+    // CallFunctionExpression -> Identifier ( CallFunctionParameters )
+    if (this->currentToken.type == Identifier) {
+        this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getNextToken();
+            this->CallFunctionParameters();
+            if (this->currentToken.type == RIGHT_PAREN) {
+                this->getNextToken();
+            } else {
+                std::cerr << "CallFunctionExpression Error: Expected Right Parenthesis" << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << "CallFunctionExpression Error: Expected Left Parenthesis" << std::endl;
+            exit(1);
+        }
+    } else {
+        std::cerr << "CallFunctionExpression Error: Expected Identifier" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::CallFunctionStatement() {
+    // CallFunctionStatement -> CallFunctionExpression ;
+    this->CallFunctionExpression();
+    if (this->currentToken.type == SEMICOLON) {
+        this->getNextToken();
+    } else {
+        std::cerr << "CallFunctionStatement Error: Expected Semicolon" << std::endl;
+        exit(1);
+    }
+}
+
+void Parser::CallFunctionParameters() {
+    // CallFunctionParameters -> CallFunctionParameters | Expression | £`
+    if (this->currentToken.type == RIGHT_PAREN) {
+        return;
+    }
+    this->Expression();
+    if (this->currentToken.type == COMMA) {
+        this->getNextToken();
+        this->CallFunctionParameters();
     }
 }
 
@@ -469,7 +527,7 @@ void Parser::Term() {
 }
 
 void Parser::Factor() {
-    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier
+    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier | CallFunctionExpression
     if (this->currentToken.type == LEFT_PAREN) {
         this->getNextToken();
         this->Expression();
@@ -485,8 +543,13 @@ void Parser::Factor() {
         this->getNextToken();
     } else if (this->currentToken.type == Identifier) {
         this->getNextToken();
+        if (this->currentToken.type == LEFT_PAREN) {
+            this->getPrevToken();
+            this->CallFunctionExpression();
+        }
+        // Normal Identifier
     } else {
-        std::cerr << "Error: Expected Left Parenthesis, IntValue, FloatValue or Identifier" << std::endl;
+        std::cerr << "Error: Expected Expression" << std::endl;
         exit(1);
     }
 }
@@ -505,7 +568,7 @@ void Parser::startParse() {
     // AssignmentStatement -> AssignmentExpression ;
 
     // Statements -> Statement Statements | £`
-    // Statement -> DeclarationStatement | AssignmentStatement | IfStatement | WhileStatement | ForStatement | £`
+    // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | £`
 
     // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
     // Parameters -> £` | ParameterList
@@ -529,11 +592,15 @@ void Parser::startParse() {
     // WhileStatement -> while ( ConditionExpression ) LoopBlock
     // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
 
+    // CallFunctionExpression -> Identifier ( CallFunctionParameters )
+    // CallFunctionStatement -> CallFunctionExpression ;
+    // CallFunctionParameters -> CallFunctionParameters | Expression | £`
+
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
 
     // Expression -> Term | Expression + Term | Expression - Term
     // Term -> Factor | Term * Factor | Term / Factor | Term % Factor
-    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier
+    // Factor -> ( Expression ) | IntValue | FloatValue | Identifier | CallFunctionExpression
 
     this->getNextToken();
     GlobalStatements();
