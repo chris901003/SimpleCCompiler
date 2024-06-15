@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include <stack>
+#include <map>
 #include "../Token/token.h"
 
 using namespace llvm;
@@ -38,6 +39,9 @@ class LLVMController {
         string functionName;
         vector<pair<string, TokenType>> definitionParameters;
 
+        string callFunctionName;
+        vector<Value*> callFunctionParameters;
+
         void showLLVMCode();
         void createFunctionDefinition();
         void createVariable();
@@ -54,6 +58,8 @@ class LLVMController {
         void createReturnWithValue();
         void createPrintFunction();
         void callPrintFunction();
+        void createCallFunction();
+        void moveIntValueStackToCallFunctionParameters();
 };
 
 #endif

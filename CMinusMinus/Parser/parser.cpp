@@ -83,6 +83,7 @@ void Parser::DeclarationVariable() {
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
+            this->llvmController->intValueStack = {};
             this->Expression();
             this->llvmController->assignVariable();
         }
@@ -99,6 +100,7 @@ void Parser::AssignmentExpression() {
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
+            this->llvmController->intValueStack = {};
             this->Expression();
             this->llvmController->assignVariable();
         } else {
@@ -253,6 +255,7 @@ void Parser::ReturnStatement() {
             this->llvmController->createReturnWithoutValue();
             this->getNextToken();
         } else {
+            this->llvmController->intValueStack = {};
             this->Expression();
             if (this->currentToken.type == SEMICOLON) {
                 this->llvmController->createReturnWithValue();
@@ -478,6 +481,7 @@ void Parser::PrintStatement() {
 void Parser::CallFunctionExpression() {
     // CallFunctionExpression -> Identifier ( CallFunctionParameters )
     if (this->currentToken.type == Identifier) {
+        this->llvmController->callFunctionName = this->currentToken.sValue;
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
@@ -512,12 +516,16 @@ void Parser::CallFunctionStatement() {
 void Parser::CallFunctionParameters() {
     // CallFunctionParameters -> CallFunctionParameters | Expression | £`
     if (this->currentToken.type == RIGHT_PAREN) {
+        this->llvmController->createCallFunction();
         return;
     }
     this->Expression();
+    this->llvmController->moveIntValueStackToCallFunctionParameters();
     if (this->currentToken.type == COMMA) {
         this->getNextToken();
         this->CallFunctionParameters();
+    } else {
+        this->llvmController->createCallFunction();
     }
 }
 
@@ -588,8 +596,9 @@ void Parser::Factor() {
         if (this->currentToken.type == LEFT_PAREN) {
             this->getPrevToken();
             this->CallFunctionExpression();
+        } else {
+            this->llvmController->pushVariableToValueStack(variableName);
         }
-        this->llvmController->pushVariableToValueStack(variableName);
     } else {
         std::cerr << "Error: Expected Expression" << std::endl;
         exit(1);

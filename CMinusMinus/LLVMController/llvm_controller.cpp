@@ -282,3 +282,22 @@ void LLVMController::callPrintFunction() {
     intValueStack.pop();
     builder->CreateCall(printfFunc, printfArgs);
 }
+
+void LLVMController::createCallFunction() {
+    Function *function = module->getFunction(callFunctionName);
+    if (function == nullptr) {
+        cout << "Function " << callFunctionName << " not found" << endl;
+        exit(1);
+    }
+    Value* ret = builder->CreateCall(function, callFunctionParameters);
+    if (function->getReturnType() == getIntType()) {
+        intValueStack.push(ret);
+    }
+    callFunctionParameters.clear();
+}
+
+void LLVMController::moveIntValueStackToCallFunctionParameters() {
+    this->calIntValueStack();
+    callFunctionParameters.push_back(intValueStack.top());
+    intValueStack.pop();
+}
