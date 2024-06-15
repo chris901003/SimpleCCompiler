@@ -392,3 +392,39 @@ void LLVMController::changeToMergeBlock() {
     builder->CreateBr(mergeBlock);
     builder->SetInsertPoint(mergeBlock);
 }
+
+void LLVMController::createWhileStatement() {
+    Function *function = builder->GetInsertBlock()->getParent();
+    BasicBlock* whileConditionBlock = BasicBlock::Create(*context, "whilecond", function);
+    BasicBlock* whileBodyBlock = BasicBlock::Create(*context, "whilebody", function);
+    BasicBlock* whileAfterBlock = BasicBlock::Create(*context, "whileafter", function);
+    whileConditionBlockStack.push(whileConditionBlock);
+    whileBodyBlockStack.push(whileBodyBlock);
+    whileAfterBlockStack.push(whileAfterBlock);
+
+    builder->CreateBr(whileConditionBlock);
+    builder->SetInsertPoint(whileConditionBlock);
+}
+
+void LLVMController::createWhileConditionJump() {
+        AllocaInst *conditionResult = this->findAllocaByName(builder->GetInsertBlock()->getParent(), conditionResultKey);
+    if (conditionResult == nullptr) {
+        cout << "Variable " << conditionResultKey << " not found" << endl;
+        exit(1);
+    }
+    Value *conditionValue = builder->CreateLoad(getBoolType(), conditionResult);
+    BasicBlock* whileBodyBlock = whileBodyBlockStack.top();
+    whileBodyBlockStack.pop();
+    BasicBlock* whileAfterBlock = whileAfterBlockStack.top();
+    builder->CreateCondBr(conditionValue, whileBodyBlock, whileAfterBlock);
+    builder->SetInsertPoint(whileBodyBlock);
+}
+
+void LLVMController::createJumpToWhileCondition() {
+    BasicBlock* whileConditionBlock = whileConditionBlockStack.top();
+    whileConditionBlockStack.pop();
+    BasicBlock* whileAfterBlock = whileAfterBlockStack.top();
+    whileAfterBlockStack.pop();
+    builder->CreateBr(whileConditionBlock);
+    builder->SetInsertPoint(whileAfterBlock);
+}

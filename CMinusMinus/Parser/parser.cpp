@@ -395,10 +395,13 @@ void Parser::WhileStatement() {
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
+            this->llvmController->createWhileStatement();
             this->ConditionExpression();
+            this->llvmController->createWhileConditionJump();
             if (this->currentToken.type == RIGHT_PAREN) {
                 this->getNextToken();
                 this->LoopBlock();
+                this->llvmController->createJumpToWhileCondition();
             } else {
                 std::cerr << "WhileStatement Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
