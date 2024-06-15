@@ -80,13 +80,21 @@ void LLVMController::createFunctionDefinition() {
 
     BasicBlock *basicBlock = BasicBlock::Create(*context, "entry", function);
     builder->SetInsertPoint(basicBlock);
+
+    idx = 0;
+    for (pair<string, TokenType> parameter : definitionParameters) {
+        if (parameter.second == TokenType::Int) {
+            AllocaInst *alloca = builder->CreateAlloca(getIntType(), nullptr, parameter.first + "_");
+            builder->CreateStore(function->getArg(idx++), alloca);
+        }
+    }
 }
 
 AllocaInst* LLVMController::findAllocaByName(Function* function, string& variableName) {
     for (auto& BB : *function) {
         for (auto& I : BB) {
             if (llvm::AllocaInst* AI = llvm::dyn_cast<llvm::AllocaInst>(&I)) {
-                if (AI->getName() == variableName) {
+                if (AI->getName() == variableName || AI->getName() == variableName + "_") {
                     return AI;
                 }
             }
@@ -248,6 +256,7 @@ void LLVMController::createReturnWithoutValue() {
 }
 
 void LLVMController::createReturnWithValue() {
+    this->calIntValueStack();
     Value *returnValue = intValueStack.top();
     intValueStack.pop();
     builder->CreateRet(returnValue);

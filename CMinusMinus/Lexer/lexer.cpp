@@ -50,7 +50,7 @@ Token Lexer::getNextToken() {
     this->startRow = this->rows - 1;
 
     // Check for identifiers
-    if (isalpha(this->currentChar) || this->currentChar == '_') {
+    if (isalpha(this->currentChar)) {
         std::string identifier = "";
         while (isalnum(this->currentChar)) {
             identifier += this->currentChar;
