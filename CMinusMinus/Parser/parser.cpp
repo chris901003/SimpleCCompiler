@@ -365,13 +365,16 @@ void Parser::IfStatement() {
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
             this->ConditionExpression();
+            this->llvmController->createIfStatement();
             if (this->currentToken.type == RIGHT_PAREN) {
                 this->getNextToken();
                 this->Block();
+                this->llvmController->changeToElseBlock();
                 if (this->currentToken.type == ELSE) {
                     this->getNextToken();
                     this->Block();
                 }
+                this->llvmController->changeToMergeBlock();
             } else {
                 std::cerr << "IfStatement Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
@@ -531,7 +534,10 @@ void Parser::CallFunctionParameters() {
 
 void Parser::ConditionExpression() {
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
+    this->llvmController->intValueStack = {};
     this->Expression();
+    this->llvmController->saveConditionValue(true);
+    this->llvmController->conditionType = this->currentToken.type;
     if (this->currentToken.type == LessThan) {
         this->getNextToken();
         this->Expression();
@@ -551,6 +557,8 @@ void Parser::ConditionExpression() {
         this->getNextToken();
         this->Expression();
     }
+    this->llvmController->saveConditionValue(false);
+    this->llvmController->calCondition();
 }
 
 void Parser::Expression() {

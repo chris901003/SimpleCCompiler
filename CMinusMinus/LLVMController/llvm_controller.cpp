@@ -34,6 +34,10 @@ Type* LLVMController::getFloatType() {
     return Type::getFloatTy(*context);
 }
 
+Type* LLVMController::getBoolType() {
+    return Type::getInt1Ty(*context);
+}
+
 int LLVMController::operationPriority(char operation) {
     if (operation == '+' || operation == '-') {
         return 1;
@@ -136,6 +140,12 @@ void LLVMController::calIntValueStack() {
                 this->createModulo();
                 break;
         }
+    }
+}
+
+void LLVMController::createVariableIfNeeded(Function* function, string& variableName, Type* variableType) {
+    if (!this->variableIsExist(function, variableName)) {
+        builder->CreateAlloca(variableType, nullptr, variableName);
     }
 }
 
@@ -300,4 +310,85 @@ void LLVMController::moveIntValueStackToCallFunctionParameters() {
     this->calIntValueStack();
     callFunctionParameters.push_back(intValueStack.top());
     intValueStack.pop();
+}
+
+void LLVMController::saveConditionValue(bool isLeft) {
+    this->calIntValueStack();
+    Value *value = intValueStack.top();
+    intValueStack.pop();
+    string variableName = isLeft ? leftConditionKey : rightConditionKey;
+    this->createVariableIfNeeded(builder->GetInsertBlock()->getParent(), variableName, getIntType());
+    AllocaInst *alloca = this->findAllocaByName(builder->GetInsertBlock()->getParent(), variableName);
+    builder->CreateStore(value, alloca);
+}
+
+void LLVMController::calCondition() {
+    AllocaInst *leftConditionValue = this->findAllocaByName(builder->GetInsertBlock()->getParent(), leftConditionKey);
+    AllocaInst *rightConditionValue = this->findAllocaByName(builder->GetInsertBlock()->getParent(), rightConditionKey);
+    if (leftConditionValue == nullptr || rightConditionValue == nullptr) {
+        cout << "Variable " << leftConditionKey << " or " << rightConditionKey << " not found" << endl;
+        exit(1);
+    }
+    Value *leftValue = builder->CreateLoad(getIntType(), leftConditionValue);
+    Value *rightValue = builder->CreateLoad(getIntType(), rightConditionValue);
+    Value *result;
+    switch (this->conditionType) {
+        case TokenType::LessThan:
+            result = builder->CreateICmpSLT(leftValue, rightValue);
+            break;
+        case TokenType::LessThanEqual:
+            result = builder->CreateICmpSLE(leftValue, rightValue);
+            break;
+        case TokenType::GreaterThan:
+            result = builder->CreateICmpSGT(leftValue, rightValue);
+            break;
+        case TokenType::GreaterThanEqual:
+            result = builder->CreateICmpSGE(leftValue, rightValue);
+            break;
+        case TokenType::Equal:
+            result = builder->CreateICmpEQ(leftValue, rightValue);
+            break;
+        case TokenType::NotEqual:
+            result = builder->CreateICmpNE(leftValue, rightValue);
+            break;
+        default:
+            cout << "Invalid condition type: " << this->conditionType << endl;
+            exit(1);
+    }
+    this->createVariableIfNeeded(builder->GetInsertBlock()->getParent(), conditionResultKey, getBoolType());
+    AllocaInst *alloca = this->findAllocaByName(builder->GetInsertBlock()->getParent(), conditionResultKey);
+    builder->CreateStore(result, alloca);
+}
+
+void LLVMController::createIfStatement() {
+    AllocaInst *conditionResult = this->findAllocaByName(builder->GetInsertBlock()->getParent(), conditionResultKey);
+    if (conditionResult == nullptr) {
+        cout << "Variable " << conditionResultKey << " not found" << endl;
+        exit(1);
+    }
+    Value *conditionValue = builder->CreateLoad(getBoolType(), conditionResult);
+    Function *function = builder->GetInsertBlock()->getParent();
+    BasicBlock *thenBlock = BasicBlock::Create(*context, "then", function);
+    BasicBlock *elseBlock = BasicBlock::Create(*context, "else", function);
+    BasicBlock *mergeBlock = BasicBlock::Create(*context, "ifcont", function);
+    elseBlockStack.push(elseBlock);
+    mergeBlockStack.push(mergeBlock);
+
+    builder->CreateCondBr(conditionValue, thenBlock, elseBlock);
+    builder->SetInsertPoint(thenBlock);
+}
+
+void LLVMController::changeToElseBlock() {
+    BasicBlock *elseBlock = elseBlockStack.top();
+    elseBlockStack.pop();
+    BasicBlock *mergeBlock = mergeBlockStack.top();
+    builder->CreateBr(mergeBlock);
+    builder->SetInsertPoint(elseBlock);
+}
+
+void LLVMController::changeToMergeBlock() {
+    BasicBlock *mergeBlock = mergeBlockStack.top();
+    mergeBlockStack.pop();
+    builder->CreateBr(mergeBlock);
+    builder->SetInsertPoint(mergeBlock);
 }

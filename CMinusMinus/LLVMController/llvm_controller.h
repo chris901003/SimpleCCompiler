@@ -22,10 +22,17 @@ class LLVMController {
         Function *printfFunc;
         Type* getIntType();
         Type* getFloatType();
+        Type* getBoolType();
         int operationPriority(char operation);
         bool variableIsExist(Function *function, string &name);
         AllocaInst* findAllocaByName(Function* function, string& variableName);
         void calIntValueStack();
+        void createVariableIfNeeded(Function* function, string& variableName, Type* variableType);
+        string leftConditionKey = "left_condition_value";
+        string rightConditionKey = "right_condition_value";
+        string conditionResultKey = "condition_result";
+        stack<BasicBlock*> elseBlockStack;
+        stack<BasicBlock*> mergeBlockStack;
 
     public:
         LLVMController();
@@ -41,6 +48,7 @@ class LLVMController {
 
         string callFunctionName;
         vector<Value*> callFunctionParameters;
+        TokenType conditionType;
 
         void showLLVMCode();
         void createFunctionDefinition();
@@ -60,6 +68,11 @@ class LLVMController {
         void callPrintFunction();
         void createCallFunction();
         void moveIntValueStackToCallFunctionParameters();
+        void saveConditionValue(bool isLeft);
+        void calCondition();
+        void createIfStatement();
+        void changeToElseBlock();
+        void changeToMergeBlock();
 };
 
 #endif
