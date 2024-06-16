@@ -419,19 +419,25 @@ void Parser::WhileStatement() {
 void Parser::ForStatement() {
     // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
     if (this->currentToken.type == FOR) {
+        this->llvmController->createForStatement();
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
             this->ForInitExpression();
             if (this->currentToken.type == SEMICOLON) {
+                this->llvmController->createJumpToForCondition();
                 this->getNextToken();
                 this->ConditionExpression();
+                this->llvmController->createForConditionJump();
                 if (this->currentToken.type == SEMICOLON) {
+                    this->llvmController->createJumpToForExpression();
                     this->getNextToken();
                     this->AssignmentExpression();
                     if (this->currentToken.type == RIGHT_PAREN) {
+                        this->llvmController->createJumpToForBody();
                         this->getNextToken();
                         this->LoopBlock();
+                        this->llvmController->createForBodyJumpBackToCondition();
                     } else {
                         std::cerr << "ForStatement Error: Expected Right Parenthesis" << std::endl;
                         exit(1);

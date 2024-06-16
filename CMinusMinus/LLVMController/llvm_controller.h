@@ -33,9 +33,15 @@ class LLVMController {
         string conditionResultKey = "condition_result";
         stack<BasicBlock*> elseBlockStack;
         stack<BasicBlock*> mergeBlockStack;
+
         stack<BasicBlock*> whileConditionBlockStack;
         stack<BasicBlock*> whileBodyBlockStack;
         stack<BasicBlock*> whileAfterBlockStack;
+
+        stack<BasicBlock*> forConditionBlockStack;
+        stack<BasicBlock*> forExpressionBlockStack;
+        stack<BasicBlock*> forBodyBlockStack;
+        stack<BasicBlock*> forAfterBlockStack;
 
     public:
         LLVMController();
@@ -79,6 +85,12 @@ class LLVMController {
         void createWhileStatement();
         void createWhileConditionJump();
         void createJumpToWhileCondition();
+        void createForStatement();
+        void createJumpToForCondition();
+        void createForConditionJump();
+        void createJumpToForExpression();
+        void createJumpToForBody();
+        void createForBodyJumpBackToCondition();
 };
 
 #endif

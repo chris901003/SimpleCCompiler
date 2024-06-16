@@ -428,3 +428,60 @@ void LLVMController::createJumpToWhileCondition() {
     builder->CreateBr(whileConditionBlock);
     builder->SetInsertPoint(whileAfterBlock);
 }
+
+void LLVMController::createForStatement() {
+    Function *function = builder->GetInsertBlock()->getParent();
+    BasicBlock* forInitBlock = BasicBlock::Create(*context, "forinit", function);
+    BasicBlock* forConditionBlock = BasicBlock::Create(*context, "forcond", function);
+    BasicBlock* forBodyBlock = BasicBlock::Create(*context, "forbody", function);
+    BasicBlock* forExpressionBlock = BasicBlock::Create(*context, "forexpr", function);
+    BasicBlock* forAfterBlock = BasicBlock::Create(*context, "forafter", function);
+    forConditionBlockStack.push(forConditionBlock);
+    forExpressionBlockStack.push(forExpressionBlock);
+    forBodyBlockStack.push(forBodyBlock);
+    forAfterBlockStack.push(forAfterBlock);
+
+    builder->CreateBr(forInitBlock);
+    builder->SetInsertPoint(forInitBlock);
+}
+
+void LLVMController::createJumpToForCondition() {
+    BasicBlock* forConditionBlock = forConditionBlockStack.top();
+    builder->CreateBr(forConditionBlock);
+    builder->SetInsertPoint(forConditionBlock);
+}
+
+void LLVMController::createForConditionJump() {
+    AllocaInst *conditionResult = this->findAllocaByName(builder->GetInsertBlock()->getParent(), conditionResultKey);
+    if (conditionResult == nullptr) {
+        cout << "Variable " << conditionResultKey << " not found" << endl;
+        exit(1);
+    }
+    Value *conditionValue = builder->CreateLoad(getBoolType(), conditionResult);
+    BasicBlock* forBodyBlock = forBodyBlockStack.top();
+    BasicBlock* forAfterBlock = forAfterBlockStack.top();
+    builder->CreateCondBr(conditionValue, forBodyBlock, forAfterBlock);
+}
+
+void LLVMController::createJumpToForExpression() {
+    BasicBlock* forExpressionBlock = forExpressionBlockStack.top();
+    builder->SetInsertPoint(forExpressionBlock);
+}
+
+void LLVMController::createJumpToForBody() {
+    BasicBlock* forConditionBlock = forConditionBlockStack.top();
+    forConditionBlockStack.pop();
+    BasicBlock* forBodyBlock = forBodyBlockStack.top();
+    forBodyBlockStack.pop();
+    builder->CreateBr(forConditionBlock);
+    builder->SetInsertPoint(forBodyBlock);
+}
+
+void LLVMController::createForBodyJumpBackToCondition() {
+    BasicBlock* forExpressionBlock = forExpressionBlockStack.top();
+    forExpressionBlockStack.pop();
+    BasicBlock* forAfterBlock = forAfterBlockStack.top();
+    forAfterBlockStack.pop();
+    builder->CreateBr(forExpressionBlock);
+    builder->SetInsertPoint(forAfterBlock);
+}
