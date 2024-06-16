@@ -273,6 +273,16 @@ void Parser::ReturnStatement() {
                 exit(1);
             }
         }
+        int cnt = 1;
+        while (cnt) {
+            if (this->currentToken.type == LEFT_BRACE) {
+                cnt++;
+            } else if (this->currentToken.type == RIGHT_BRACE) {
+                cnt--;
+            }
+            this->getNextToken();
+        }
+        this->getPrevToken();
     } else {
         std::cerr << "ReturnStatement Error: Expected Return Statement" << std::endl;
         exit(1);

@@ -392,14 +392,20 @@ void LLVMController::changeToElseBlock() {
     BasicBlock *elseBlock = elseBlockStack.top();
     elseBlockStack.pop();
     BasicBlock *mergeBlock = mergeBlockStack.top();
-    builder->CreateBr(mergeBlock);
+    BasicBlock *currentBlock = builder->GetInsertBlock();
+    if (currentBlock->getTerminator() == nullptr) {
+        builder->CreateBr(mergeBlock);
+    }
     builder->SetInsertPoint(elseBlock);
 }
 
 void LLVMController::changeToMergeBlock() {
     BasicBlock *mergeBlock = mergeBlockStack.top();
     mergeBlockStack.pop();
-    builder->CreateBr(mergeBlock);
+    BasicBlock *currentBlock = builder->GetInsertBlock();
+    if (currentBlock->getTerminator() == nullptr) {
+        builder->CreateBr(mergeBlock);
+    }
     builder->SetInsertPoint(mergeBlock);
 }
 
@@ -435,7 +441,10 @@ void LLVMController::createJumpToWhileCondition() {
     whileConditionBlockStack.pop();
     BasicBlock* whileAfterBlock = whileAfterBlockStack.top();
     whileAfterBlockStack.pop();
-    builder->CreateBr(whileConditionBlock);
+    BasicBlock* currentBlock = builder->GetInsertBlock();
+    if (currentBlock->getTerminator() == nullptr) {
+        builder->CreateBr(whileConditionBlock);
+    }
     builder->SetInsertPoint(whileAfterBlock);
 }
 
@@ -492,6 +501,9 @@ void LLVMController::createForBodyJumpBackToCondition() {
     forExpressionBlockStack.pop();
     BasicBlock* forAfterBlock = forAfterBlockStack.top();
     forAfterBlockStack.pop();
-    builder->CreateBr(forExpressionBlock);
+    BasicBlock* currentBlock = builder->GetInsertBlock();
+    if (currentBlock->getTerminator() == nullptr) {
+        builder->CreateBr(forExpressionBlock);
+    }
     builder->SetInsertPoint(forAfterBlock);
 }
