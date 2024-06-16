@@ -60,6 +60,7 @@ class LLVMController {
         TokenType conditionType;
 
         void showLLVMCode();
+        void createFunctionDeclarationIfNeeded();
         void createFunctionDefinition();
         void createVariable();
         void assignVariable();

@@ -60,32 +60,42 @@ bool LLVMController::variableIsExist(Function *function, string &name) {
     return false;
 }
 
-void LLVMController::createFunctionDefinition() {
-    vector<Type*> parametersType;
-    for (pair<string, TokenType> parameter : definitionParameters) {
-        if (parameter.second == TokenType::Int) {
-            parametersType.push_back(getIntType());
+void LLVMController::createFunctionDeclarationIfNeeded() {
+    Function *function = module->getFunction(functionName);
+    if (function == nullptr) {
+        vector<Type*> parametersType;
+        for (pair<string, TokenType> parameter : definitionParameters) {
+            if (parameter.second == TokenType::Int) {
+                parametersType.push_back(getIntType());
+            }
+        }
+
+        Type* returnType;
+        if (functionReturnType == TokenType::Int) {
+            returnType = getIntType();
+        } else if (functionReturnType == TokenType::Void) {
+            returnType = builder->getVoidTy();
+        }
+
+        FunctionType *functionType = FunctionType::get(returnType, parametersType, false);
+        function = Function::Create(functionType, Function::ExternalLinkage, functionName, module);
+        int idx = 0;
+        for (Function::arg_iterator arg = function->arg_begin(); arg != function->arg_end(); ++arg, ++idx) {
+            arg->setName(definitionParameters[idx].first);
         }
     }
+}
 
-    Type* returnType;
-    if (functionReturnType == TokenType::Int) {
-        returnType = getIntType();
-    } else if (functionReturnType == TokenType::Void) {
-        returnType = builder->getVoidTy();
+void LLVMController::createFunctionDefinition() {
+    Function *function = module->getFunction(functionName);
+    if (function == nullptr) {
+        cout << "Function " << functionName << " not found" << endl;
+        exit(1);
     }
-
-    FunctionType *functionType = FunctionType::get(returnType, parametersType, false);
-    Function *function = Function::Create(functionType, Function::ExternalLinkage, functionName, module);
-    int idx = 0;
-    for (Function::arg_iterator arg = function->arg_begin(); arg != function->arg_end(); ++arg, ++idx) {
-        arg->setName(definitionParameters[idx].first);
-    }
-
     BasicBlock *basicBlock = BasicBlock::Create(*context, "entry", function);
     builder->SetInsertPoint(basicBlock);
 
-    idx = 0;
+    int idx = 0;
     for (pair<string, TokenType> parameter : definitionParameters) {
         if (parameter.second == TokenType::Int) {
             AllocaInst *alloca = builder->CreateAlloca(getIntType(), nullptr, parameter.first + "_");

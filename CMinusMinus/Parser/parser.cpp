@@ -27,9 +27,9 @@ void Parser::GlobalStatements() {
 }
 
 void Parser::GlobalStatement() {
-    // Globalstatment -> FunctionDefinition
+    // Globalstatment -> FunctionDeclarationOrDefinition
     if (this->currentToken.type == Int || this->currentToken.type == Void) {
-        this->FunctionDefinition();
+        this->FunctionDeclarationOrDefinition();
     } else {
         std::cerr << "GlobalStatement Error: Expected Declaration, Assignment or Function Definition" << std::endl;
         exit(1);
@@ -156,8 +156,8 @@ void Parser::Statement() {
     }
 }
 
-void Parser::FunctionDefinition() {
-    // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
+void Parser::FunctionDeclarationOrDefinition() {
+    // FunctionDeclarationOrDefinition -> VariableType Identifier ( Parameters ) FunctionBlock | VariableType Identifier ( Parameters )
     this->llvmController->functionReturnType = this->currentToken.type;
     this->VariableType();
     if (this->currentToken.type == Identifier) {
@@ -168,19 +168,27 @@ void Parser::FunctionDefinition() {
             this->getNextToken();
             this->Parameters();
             if (this->currentToken.type == RIGHT_PAREN) {
-                this->llvmController->createFunctionDefinition();
+                this->llvmController->createFunctionDeclarationIfNeeded();
                 this->getNextToken();
-                this->FunctionBlock();
+                if (this->currentToken.type == LEFT_BRACE) {
+                    this->llvmController->createFunctionDefinition();
+                    this->FunctionBlock();
+                } else if (this->currentToken.type == SEMICOLON) {
+                    this->getNextToken();
+                } else {
+                    std::cerr << "FunctionDeclarationOrDefinition Error: Expected Left Brace or Semicolon" << std::endl;
+                    exit(1);
+                }
             } else {
-                std::cerr << "FunctionDefinition Error: Expected Right Parenthesis" << std::endl;
+                std::cerr << "FunctionDeclarationOrDefinition Error: Expected Right Parenthesis" << std::endl;
                 exit(1);
             }
         } else {
-            std::cerr << "FunctionDefinition Error: Expected Left Parenthesis" << std::endl;
+            std::cerr << "FunctionDeclarationOrDefinition Error: Expected Left Parenthesis" << std::endl;
             exit(1);
         }
     } else {
-        std::cerr << "FunctionDefinition Error: Expected Identifier" << std::endl;
+        std::cerr << "FunctionDeclarationOrDefinition Error: Expected Identifier" << std::endl;
         exit(1);
     }
 }
@@ -638,7 +646,7 @@ void Parser::startParse() {
     // Statements -> Statement Statements | £`
     // Statement -> DeclarationStatement | AssignmentStatement | CallFunctionStatement | IfStatement | WhileStatement | ForStatement | PrintStatement | £`
 
-    // FunctionDefinition -> VariableType Identifier ( Parameters ) FunctionBlock
+    // FunctionDeclarationOrDefinition -> VariableType Identifier ( Parameters ) FunctionBlock | VariableType Identifier ( Parameters )
     // Parameters -> £` | ParameterList
     // ParameterList -> Parameter | ParameterList , Parameter
     // Parameter -> VariableType Identifier

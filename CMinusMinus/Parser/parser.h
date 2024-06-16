@@ -29,7 +29,7 @@ class Parser {
         void Statements();
         void Statement();
 
-        void FunctionDefinition();
+        void FunctionDeclarationOrDefinition();
         void Parameters();
         void ParameterList();
         void Parameter();
