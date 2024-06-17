@@ -34,6 +34,8 @@ class LLVMController {
         stack<BasicBlock*> elseBlockStack;
         stack<BasicBlock*> mergeBlockStack;
 
+        stack<bool> isInWhileBlockStack;
+
         stack<BasicBlock*> whileConditionBlockStack;
         stack<BasicBlock*> whileBodyBlockStack;
         stack<BasicBlock*> whileAfterBlockStack;
@@ -92,6 +94,8 @@ class LLVMController {
         void createJumpToForExpression();
         void createJumpToForBody();
         void createForBodyJumpBackToCondition();
+        void createContinueJump();
+        void createBreakJump();
 };
 
 #endif

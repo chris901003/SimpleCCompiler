@@ -313,6 +313,7 @@ void Parser::FlowBreakStatement() {
     if (this->currentToken.type == BREAK) {
         this->getNextToken();
         if (this->currentToken.type == SEMICOLON) {
+            this->llvmController->createBreakJump();
             this->getNextToken();
         } else {
             std::cerr << "FlowBreakStatement Error: Expected Semicolon" << std::endl;
@@ -321,6 +322,7 @@ void Parser::FlowBreakStatement() {
     } else if (this->currentToken.type == CONTINUE) {
         this->getNextToken();
         if (this->currentToken.type == SEMICOLON) {
+            this->llvmController->createContinueJump();
             this->getNextToken();
         } else {
             std::cerr << "FlowBreakStatement Error: Expected Semicolon" << std::endl;
@@ -330,22 +332,16 @@ void Parser::FlowBreakStatement() {
         std::cerr << "FlowBreakStatement Error: Expected Break or Continue Statement" << std::endl;
         exit(1);
     }
-}
-
-void Parser::Block() {
-    // Block -> { FunctionBlockStatements } | FunctionBlockStatement
-    if (this->currentToken.type == LEFT_BRACE) {
-        this->getNextToken();
-        this->FunctionBlockStatements();
-        if (this->currentToken.type == RIGHT_BRACE) {
-            this->getNextToken();
-        } else {
-            std::cerr << "Block Error: Expected Right Brace" << std::endl;
-            exit(1);
+    int cnt = 1;
+    while (cnt) {
+        if (this->currentToken.type == LEFT_BRACE) {
+            cnt++;
+        } else if (this->currentToken.type == RIGHT_BRACE) {
+            cnt--;
         }
-    } else {
-        this->FunctionBlockStatement();    
+        this->getNextToken();
     }
+    this->getPrevToken();
 }
 
 void Parser::LoopBlock() {
@@ -377,7 +373,7 @@ void Parser::ForInitExpression() {
 }
 
 void Parser::IfStatement() {
-    // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
+    // IfStatement -> if ( ConditionExpression ) LoopBlock | if ( ConditionExpression ) LoopBlock else LoopBlock
     if (this->currentToken.type == IF) {
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
@@ -386,11 +382,11 @@ void Parser::IfStatement() {
             this->llvmController->createIfStatement();
             if (this->currentToken.type == RIGHT_PAREN) {
                 this->getNextToken();
-                this->Block();
+                this->LoopBlock();
                 this->llvmController->changeToElseBlock();
                 if (this->currentToken.type == ELSE) {
                     this->getNextToken();
-                    this->Block();
+                    this->LoopBlock();
                 }
                 this->llvmController->changeToMergeBlock();
             } else {
@@ -674,7 +670,7 @@ void Parser::startParse() {
 
     // ForInitExpression -> AssignmentExpression | DeclarationExpression
 
-    // IfStatement -> if ( ConditionExpression ) Block | if ( ConditionExpression ) Block else Block
+    // IfStatement -> if ( ConditionExpression ) LoopBlock | if ( ConditionExpression ) LoopBlock else LoopBlock
     // WhileStatement -> while ( ConditionExpression ) LoopBlock
     // ForStatement -> for ( ForInitExpression ; ConditionExpression ; AssignmentExpression ) LoopBlock
     // PrintStatemnt -> print ( Expression ) ;

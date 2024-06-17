@@ -434,6 +434,7 @@ void LLVMController::createWhileConditionJump() {
     BasicBlock* whileAfterBlock = whileAfterBlockStack.top();
     builder->CreateCondBr(conditionValue, whileBodyBlock, whileAfterBlock);
     builder->SetInsertPoint(whileBodyBlock);
+    this->isInWhileBlockStack.push(true);
 }
 
 void LLVMController::createJumpToWhileCondition() {
@@ -446,6 +447,7 @@ void LLVMController::createJumpToWhileCondition() {
         builder->CreateBr(whileConditionBlock);
     }
     builder->SetInsertPoint(whileAfterBlock);
+    this->isInWhileBlockStack.pop();
 }
 
 void LLVMController::createForStatement() {
@@ -494,6 +496,7 @@ void LLVMController::createJumpToForBody() {
     forBodyBlockStack.pop();
     builder->CreateBr(forConditionBlock);
     builder->SetInsertPoint(forBodyBlock);
+    this->isInWhileBlockStack.push(false);
 }
 
 void LLVMController::createForBodyJumpBackToCondition() {
@@ -506,4 +509,33 @@ void LLVMController::createForBodyJumpBackToCondition() {
         builder->CreateBr(forExpressionBlock);
     }
     builder->SetInsertPoint(forAfterBlock);
+    this->isInWhileBlockStack.pop();
+}
+
+void LLVMController::createContinueJump() {
+    if (isInWhileBlockStack.size() == 0) {
+        cout << "Continue statement is not in a loop" << endl;
+        exit(1);
+    }
+    if (this->isInWhileBlockStack.top()) {
+        BasicBlock* whileConditionBlock = whileConditionBlockStack.top();
+        builder->CreateBr(whileConditionBlock);
+    } else {
+        BasicBlock* forExpressionBlock = forExpressionBlockStack.top();
+        builder->CreateBr(forExpressionBlock);
+    }
+}
+
+void LLVMController::createBreakJump() {
+    if (isInWhileBlockStack.size() == 0) {
+        cout << "Break statement is not in a loop" << endl;
+        exit(1);
+    }
+    if (this->isInWhileBlockStack.top()) {
+        BasicBlock* whileAfterBlock = whileAfterBlockStack.top();
+        builder->CreateBr(whileAfterBlock);
+    } else {
+        BasicBlock* forAfterBlock = forAfterBlockStack.top();
+        builder->CreateBr(forAfterBlock);
+    }
 }

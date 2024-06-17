@@ -42,7 +42,6 @@ class Parser {
         void LoopBlockStatement();
         void FlowBreakStatement();
 
-        void Block();
         void LoopBlock();
 
         void ForInitExpression();
