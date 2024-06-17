@@ -292,3 +292,5 @@ Code:
 ## 七、其他
 1. 為什麼沒有做判斷是否有main function?
     - 因為一個c程式碼不需要一定有main function，他可能是.h的實現
+2. 原始程式碼連結
+    - https://github.com/chris901003/SimpleCCompiler/tree/master/CMinusMinus
