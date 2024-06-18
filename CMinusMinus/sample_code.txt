@@ -9,6 +9,14 @@ int fab(int n) {
 }
 
 int main() {
+    // This is a comment line
+    
+    /*
+    This is a multi line comment
+    Second line
+    Third line
+    */
+
     int a = 20 + 10 * 2 / 5, b;
     b = a + 20 / 2;
     int c = a;
