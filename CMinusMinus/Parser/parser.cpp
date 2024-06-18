@@ -83,7 +83,8 @@ void Parser::DeclarationVariable() {
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
-            this->llvmController->intValueStack = {};
+            this->llvmController->intValueStack.push({});
+            this->llvmController->operationStack.push({});
             this->Expression();
             this->llvmController->assignVariable();
         }
@@ -100,7 +101,8 @@ void Parser::AssignmentExpression() {
         this->getNextToken();
         if (this->currentToken.type == ASSIGN) {
             this->getNextToken();
-            this->llvmController->intValueStack = {};
+            this->llvmController->intValueStack.push({});
+            this->llvmController->operationStack.push({});
             this->Expression();
             this->llvmController->assignVariable();
         } else {
@@ -263,7 +265,8 @@ void Parser::ReturnStatement() {
             this->llvmController->createReturnWithoutValue();
             this->getNextToken();
         } else {
-            this->llvmController->intValueStack = {};
+            this->llvmController->intValueStack.push({});
+            this->llvmController->operationStack.push({});
             this->Expression();
             if (this->currentToken.type == SEMICOLON) {
                 this->llvmController->createReturnWithValue();
@@ -480,6 +483,8 @@ void Parser::PrintStatement() {
         this->getNextToken();
         if (this->currentToken.type == LEFT_PAREN) {
             this->getNextToken();
+            this->llvmController->intValueStack.push({});
+            this->llvmController->operationStack.push({});
             this->Expression();
             if (this->currentToken.type == RIGHT_PAREN) {
                 this->llvmController->callPrintFunction();
@@ -545,6 +550,8 @@ void Parser::CallFunctionParameters() {
         this->llvmController->createCallFunction();
         return;
     }
+    this->llvmController->intValueStack.push({});
+    this->llvmController->operationStack.push({});
     this->Expression();
     this->llvmController->moveIntValueStackToCallFunctionParameters();
     if (this->currentToken.type == COMMA) {
@@ -557,27 +564,40 @@ void Parser::CallFunctionParameters() {
 
 void Parser::ConditionExpression() {
     // ConditionExpression -> Expression < Expression | Expression > Expression | Expression <= Expression | Expression >= Expression | Expression == Expression | Expression != Expression
-    this->llvmController->intValueStack = {};
+    this->llvmController->intValueStack.push({});
+    this->llvmController->operationStack.push({});
     this->Expression();
     this->llvmController->saveConditionValue(true);
     this->llvmController->conditionType = this->currentToken.type;
     if (this->currentToken.type == LessThan) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     } else if (this->currentToken.type == GreaterThan) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     } else if (this->currentToken.type == LessThanEqual) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     } else if (this->currentToken.type == GreaterThanEqual) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     } else if (this->currentToken.type == Equal) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     } else if (this->currentToken.type == NotEqual) {
         this->getNextToken();
+        this->llvmController->intValueStack.push({});
+        this->llvmController->operationStack.push({});
         this->Expression();
     }
     this->llvmController->saveConditionValue(false);

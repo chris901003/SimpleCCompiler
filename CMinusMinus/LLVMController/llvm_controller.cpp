@@ -130,9 +130,9 @@ void LLVMController::createVariable() {
 }
 
 void LLVMController::calIntValueStack() {
-    while (this->operationStack.size() > 0) {
-        char lastOperation = this->operationStack.top();
-        this->operationStack.pop();
+    while (this->operationStack.top().size() > 0) {
+        char lastOperation = this->operationStack.top().top();
+        this->operationStack.top().pop();
         switch (lastOperation) {
             case '+':
                 this->createAddition();
@@ -166,14 +166,15 @@ void LLVMController::assignVariable() {
         exit(1);
     }
     this->calIntValueStack();
-    Value *value = intValueStack.top();
+    Value *value = intValueStack.top().top();
     intValueStack.pop();
+    operationStack.pop();
     builder->CreateStore(value, variable);
 }
 
 void LLVMController::pushIntValueStack(int value) {
     Value *intValue = ConstantInt::get(*context, APInt(32, value));
-    intValueStack.push(intValue);
+    intValueStack.top().push(intValue);
 }
 
 void LLVMController::pushVariableToValueStack(string variableName) {
@@ -183,15 +184,15 @@ void LLVMController::pushVariableToValueStack(string variableName) {
         exit(1);
     }
     Value *variableValue = builder->CreateLoad(getIntType(), variable);
-    intValueStack.push(variableValue);
+    intValueStack.top().push(variableValue);
 }
 
 void LLVMController::pushOperationStack(char operation) {
     int currentOperationPriority = this->operationPriority(operation);
-    while (this->operationStack.size() > 0) {
-        char lastOperation = this->operationStack.top();
+    while (this->operationStack.top().size() > 0) {
+        char lastOperation = this->operationStack.top().top();
         if (this->operationPriority(lastOperation) >= currentOperationPriority) {
-            this->operationStack.pop();
+            this->operationStack.top().pop();
             switch (lastOperation) {
                 case '+':
                     this->createAddition();
@@ -213,62 +214,62 @@ void LLVMController::pushOperationStack(char operation) {
             break;
         }
     }
-    this->operationStack.push(operation);
+    this->operationStack.top().push(operation);
 }
 
 void LLVMController::createAddition() {
     Value *lhs;
     Value *rhs;
-    rhs = intValueStack.top();
-    intValueStack.pop();
-    lhs = intValueStack.top();
-    intValueStack.pop();
+    rhs = intValueStack.top().top();
+    intValueStack.top().pop();
+    lhs = intValueStack.top().top();
+    intValueStack.top().pop();
     Value *addition = builder->CreateAdd(lhs, rhs, "addition");
-    intValueStack.push(addition);
+    intValueStack.top().push(addition);
 }
 
 void LLVMController::createSubtraction() {
     Value *lhs;
     Value *rhs;
-    rhs = intValueStack.top();
-    intValueStack.pop();
-    lhs = intValueStack.top();
-    intValueStack.pop();
+    rhs = intValueStack.top().top();
+    intValueStack.top().pop();
+    lhs = intValueStack.top().top();
+    intValueStack.top().pop();
     Value *subtraction = builder->CreateSub(lhs, rhs, "subtraction");
-    intValueStack.push(subtraction);
+    intValueStack.top().push(subtraction);
 }
 
 void LLVMController::createMultiplication() {
     Value *lhs;
     Value *rhs;
-    rhs = intValueStack.top();
-    intValueStack.pop();
-    lhs = intValueStack.top();
-    intValueStack.pop();
+    rhs = intValueStack.top().top();
+    intValueStack.top().pop();
+    lhs = intValueStack.top().top();
+    intValueStack.top().pop();
     Value *multiplication = builder->CreateMul(lhs, rhs, "multiplication");
-    intValueStack.push(multiplication);
+    intValueStack.top().push(multiplication);
 }
 
 void LLVMController::createDivision() {
     Value *lhs;
     Value *rhs;
-    rhs = intValueStack.top();
-    intValueStack.pop();
-    lhs = intValueStack.top();
-    intValueStack.pop();
+    rhs = intValueStack.top().top();
+    intValueStack.top().pop();
+    lhs = intValueStack.top().top();
+    intValueStack.top().pop();
     Value *division = builder->CreateSDiv(lhs, rhs, "division");
-    intValueStack.push(division);
+    intValueStack.top().push(division);
 }
 
 void LLVMController::createModulo() {
     Value *lhs;
     Value *rhs;
-    rhs = intValueStack.top();
-    intValueStack.pop();
-    lhs = intValueStack.top();
-    intValueStack.pop();
+    rhs = intValueStack.top().top();
+    intValueStack.top().pop();
+    lhs = intValueStack.top().top();
+    intValueStack.top().pop();
     Value *modulo = builder->CreateSRem(lhs, rhs, "modulo");
-    intValueStack.push(modulo);
+    intValueStack.top().push(modulo);
 }
 
 void LLVMController::createReturnWithoutValue() {
@@ -277,8 +278,9 @@ void LLVMController::createReturnWithoutValue() {
 
 void LLVMController::createReturnWithValue() {
     this->calIntValueStack();
-    Value *returnValue = intValueStack.top();
+    Value *returnValue = intValueStack.top().top();
     intValueStack.pop();
+    operationStack.pop();
     builder->CreateRet(returnValue);
 }
 
@@ -298,8 +300,9 @@ void LLVMController::createPrintFunction() {
 void LLVMController::callPrintFunction() {
     llvm::Constant* formatStr = builder->CreateGlobalStringPtr("%d\n");
     this->calIntValueStack();
-    llvm::Value* printfArgs[] = { formatStr, intValueStack.top() };
+    llvm::Value* printfArgs[] = { formatStr, intValueStack.top().top() };
     intValueStack.pop();
+    operationStack.pop();
     builder->CreateCall(printfFunc, printfArgs);
 }
 
@@ -311,21 +314,23 @@ void LLVMController::createCallFunction() {
     }
     Value* ret = builder->CreateCall(function, callFunctionParameters);
     if (function->getReturnType() == getIntType()) {
-        intValueStack.push(ret);
+        intValueStack.top().push(ret);
     }
     callFunctionParameters.clear();
 }
 
 void LLVMController::moveIntValueStackToCallFunctionParameters() {
     this->calIntValueStack();
-    callFunctionParameters.push_back(intValueStack.top());
+    callFunctionParameters.push_back(intValueStack.top().top());
     intValueStack.pop();
+    operationStack.pop();
 }
 
 void LLVMController::saveConditionValue(bool isLeft) {
     this->calIntValueStack();
-    Value *value = intValueStack.top();
+    Value *value = intValueStack.top().top();
     intValueStack.pop();
+    operationStack.pop();
     string variableName = isLeft ? leftConditionKey : rightConditionKey;
     this->createVariableIfNeeded(builder->GetInsertBlock()->getParent(), variableName, getIntType());
     AllocaInst *alloca = this->findAllocaByName(builder->GetInsertBlock()->getParent(), variableName);

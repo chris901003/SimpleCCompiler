@@ -50,8 +50,8 @@ class LLVMController {
 
         TokenType variableType;
         string variableName;
-        stack<Value*> intValueStack;
-        stack<char> operationStack;
+        stack<stack<Value*>> intValueStack;
+        stack<stack<char>> operationStack;
 
         TokenType functionReturnType;
         string functionName;
