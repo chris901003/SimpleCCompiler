@@ -65,6 +65,7 @@ class Parser {
         Parser(std::vector<Token>);
         std::vector<Token>tokens;
         void startParse();
+        bool withMainFunction;
 };
 
 #endif

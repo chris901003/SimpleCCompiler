@@ -300,7 +300,7 @@ Code:
 由於本次作業是在macOS上完成的所以最終提供的sample_code執行檔會是mac可執行的，如果是其他平台的就須自行編譯
 
 ## 七、其他
-1. 為什麼沒有做判斷是否有main function?
-    - 因為一個c程式碼不需要一定有main function，他可能是.h的實現
+1. 判斷是否有main function
+    - 如果發現沒有main function只會給出警告，但是依舊可以正常的編譯
 2. 原始程式碼連結
     - https://github.com/chris901003/SimpleCCompiler/tree/master/CMinusMinus

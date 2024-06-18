@@ -7,6 +7,7 @@ Parser::Parser(std::vector<Token> tokens) {
     this->tokens = tokens;
     this->tokenIndex = 0;
     this->llvmController = new LLVMController();
+    this->withMainFunction = false;
 }
 
 void Parser::getNextToken() {
@@ -173,6 +174,9 @@ void Parser::FunctionDeclarationOrDefinition() {
                 this->llvmController->createFunctionDeclarationIfNeeded();
                 this->getNextToken();
                 if (this->currentToken.type == LEFT_BRACE) {
+                    if (this->llvmController->functionName == "main") {
+                        this->withMainFunction = true;
+                    }
                     this->llvmController->createFunctionDefinition();
                     this->FunctionBlock();
                 } else if (this->currentToken.type == SEMICOLON) {
@@ -712,4 +716,8 @@ void Parser::startParse() {
     std::cout << std::endl;
     std::cout << "====== LLVM IR =====" << std::endl;
     llvmController->showLLVMCode();
+
+    if (!this->withMainFunction) {
+        std::cout << "Warning: Main function not found" << std::endl;
+    }
 }
