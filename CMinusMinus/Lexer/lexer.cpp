@@ -87,9 +87,6 @@ Token Lexer::getNextToken() {
         case '*':
             this->getNextChar();
             return Token(Multiply, "*");
-        case '/':
-            this->getNextChar();
-            return Token(Divide, "/");
         case '%':
             this->getNextChar();
             return Token(Modulus, "%");
@@ -139,6 +136,32 @@ Token Lexer::getNextToken() {
         case ',':
             this->getNextChar();
             return Token(COMMA, ",");
+    }
+
+    // Check single line and multi line comments
+    if (this->currentChar == '/') {
+        this->getNextChar();
+        if (this->currentChar == '/') {
+            while (this->currentChar != '\n') {
+                this->getNextChar();
+            }
+            return this->getNextToken();
+        } else if (this->currentChar == '*') {
+            this->getNextChar();
+            while (true) {
+                if (this->currentChar == '*') {
+                    this->getNextChar();
+                    if (this->currentChar == '/') {
+                        this->getNextChar();
+                        return this->getNextToken();
+                    }
+                } else {
+                    this->getNextChar();
+                }
+            }
+        } else {
+            return Token(Divide, "/");
+        }
     }
 
     return Token(UNKNOWN);
