@@ -135,6 +135,13 @@ Code:
 int sum(int a, int b);
 void doSomething();
 
+int fab(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return fab(n - 1) + fab(n - 2);
+}
+
 int main() {
     int a = 20 + 10 * 2 / 5, b;
     b = a + 20 / 2;
@@ -176,6 +183,7 @@ int main() {
         }
         print(f);
     }
+    print(fab(10));
     return 0;
 }
 
@@ -236,6 +244,7 @@ void doSomething() {
 1
 3
 5
+89
 ```
 
 ## 四、編譯器製作的心得
